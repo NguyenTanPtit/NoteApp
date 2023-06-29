@@ -1,5 +1,6 @@
 package com.example.noteapp.fragments
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -7,8 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.FragmentManager
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
@@ -36,6 +40,7 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
     private lateinit var navController: NavController
     private var note: Note? = null
     private var color = -1
+    private lateinit var result : String
     private val noteViewModel: NoteActivityViewModel by activityViewModels()
     private val currentDate = SimpleDateFormat.getInstance().format(Date())
     private val job = CoroutineScope(Dispatchers.Main)
@@ -69,12 +74,14 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
 
 
 
+    @SuppressLint("SetTextI18n")
     private fun setOnClick(){
         binding.backBtn.setOnClickListener {
             requireView().hideKeyboard()
             navController.popBackStack()
         }
 
+        binding.lastEdited.text = "Edited on: ${SimpleDateFormat.getDateInstance().format(Date())}"
         binding.saveNote.setOnClickListener {
             saveNote()
         }
@@ -135,6 +142,10 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
                         Note(
                             0, title, binding.edtNoteContent.getMD(), currentDate, color
                         )
+                    )
+                    result = "Note Saved"
+                    setFragmentResult(
+                        "key", bundleOf("bundleKey" to result)
                     )
                     navController.navigate(
                         SaveOrUpdateFragmentDirections.actionSaveOrUpdateFragmentToNoteFragment()

@@ -34,15 +34,16 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/lastEdited"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="5dp"
-                android:paddingStart="13dp"
-                android:paddingEnd="13dp"
                 android:layout_centerInParent="true"
                 android:ellipsize="end"
+                android:background="@drawable/bg_date_round"
                 android:fontFamily="@font/google_sans_regular"
                 android:padding="5dp"
+                android:paddingStart="13dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="13dp"
                 android:text="Edited On "
                 android:textAlignment="center"
                 android:textColor="@color/black"
@@ -68,6 +69,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_above="@id/bottomBar"
             android:layout_below="@id/toolbarFragmentNoteContent">
 
             <androidx.core.widget.NestedScrollView
