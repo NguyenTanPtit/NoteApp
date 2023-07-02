@@ -48,6 +48,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             activity.window.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             activity.window.statusBarColor = Color.parseColor("#9E9D9D")
         }
+        initRec()
         setOnClick()
 
     }
@@ -58,9 +59,17 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             navController.navigate(NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment())
         }
 
-        noteBinding.searchBar.setOnClickListener {
+        noteBinding.tvSearch.setOnClickListener {
             noteBinding.appBar.visibility = View.INVISIBLE
             navController.navigate(NoteFragmentDirections.actionNoteFragmentToSearchFragment())
         }
+    }
+
+    private fun initRec(){
+
+    }
+
+    private fun observerDataChange(){
+
     }
 }
