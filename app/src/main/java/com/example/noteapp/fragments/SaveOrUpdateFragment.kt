@@ -27,6 +27,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.transition.MaterialContainerTransform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -58,8 +60,36 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
+        initView()
         setOnClick()
     }
+
+    @SuppressLint("SetTextI18n")
+    private fun initView() {
+        val note = args.note
+        val title = binding.edtTile
+        val content =  binding.edtNoteContent
+        val lastEdit = binding.lastEdited
+
+        if(note==null){
+            binding.lastEdited.text = "Edited on: ${SimpleDateFormat.getDateInstance().format(Date())}"
+        }else{
+            title.setText(note.title)
+            content.renderMD(note.content)
+            lastEdit.text = "Edited on ${note.date}"
+
+            binding.apply {
+                job.launch {
+                    delay(10)
+                    noteContentFragmentParent.setBackgroundColor(color)
+                }
+                toolbarFragmentNoteContent.setBackgroundColor(color)
+                bottomBar.setBackgroundColor(color)
+            }
+            activity?.window?.statusBarColor= note.color
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val anim = MaterialContainerTransform().apply {
@@ -73,15 +103,12 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
     }
 
 
-
-    @SuppressLint("SetTextI18n")
     private fun setOnClick(){
         binding.backBtn.setOnClickListener {
             requireView().hideKeyboard()
             navController.popBackStack()
         }
 
-        binding.lastEdited.text = "Edited on: ${SimpleDateFormat.getDateInstance().format(Date())}"
         binding.saveNote.setOnClickListener {
             saveNote()
         }
@@ -153,10 +180,26 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
                 }
                 else ->{
                     //TODO: update note
+                    updateNote()
+                    navController.popBackStack()
                 }
             }
         }
 
+    }
+
+    private fun updateNote() {
+        if(note != null){
+            noteViewModel.updateNote(
+                Note(
+                    note!!.Id,
+                    binding.edtTile.text.toString(),
+                    binding.edtNoteContent.getMD(),
+                    currentDate,
+                    color
+                )
+            )
+        }
     }
 
 }

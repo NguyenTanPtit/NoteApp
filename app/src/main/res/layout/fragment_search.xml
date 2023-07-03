@@ -49,6 +49,7 @@
                 android:maxLines="1"
                 android:importantForAutofill="no"
                 android:background="@null"
+                android:imeOptions="actionSearch"
                 android:paddingStart="5dp"
                 android:focusable="true"
                 android:paddingEnd="5dp"
@@ -62,6 +63,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recSearch"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingStart="6dp"
