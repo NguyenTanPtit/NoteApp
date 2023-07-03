@@ -51,6 +51,7 @@ class NoteRecAdapter : ListAdapter<Note,NoteRecAdapter.NotesViewHolder>(DiffUtil
     override fun onBindViewHolder(holder: NotesViewHolder, position: Int) {
         getItem(position).let {note ->
             holder.apply {
+                parent.transitionName = "recyclerView_${note.Id}"
                 title.text = note.title
                 markwon.setMarkdown(content,note.content)
                 parent.setCardBackgroundColor(note.color)
@@ -58,6 +59,7 @@ class NoteRecAdapter : ListAdapter<Note,NoteRecAdapter.NotesViewHolder>(DiffUtil
                 itemView.setOnClickListener {
                     val action = NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment()
                         .setNote(note)
+
                     val extras = FragmentNavigatorExtras(parent to "recyclerView_${note.Id}")
 
                     Navigation.findNavController(it).navigate(action,extras)
@@ -66,7 +68,14 @@ class NoteRecAdapter : ListAdapter<Note,NoteRecAdapter.NotesViewHolder>(DiffUtil
                 content.setOnClickListener {
                     val action = NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment()
                         .setNote(note)
-                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${note.Id}")
+                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
+                    Navigation.findNavController(it).navigate(action,extras)
+                }
+
+                title.setOnClickListener{
+                    val action = NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment()
+                        .setNote(note)
+                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
                     Navigation.findNavController(it).navigate(action,extras)
                 }
             }

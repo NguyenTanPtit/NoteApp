@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.FragmentManager
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
@@ -60,6 +61,8 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
+        ViewCompat.setTransitionName(binding.noteContentFragmentParent,
+            "recyclerView_${args.note?.Id}")
         initView()
         setOnClick()
     }
@@ -70,10 +73,10 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
         val title = binding.edtTile
         val content =  binding.edtNoteContent
         val lastEdit = binding.lastEdited
-
         if(note==null){
             binding.lastEdited.text = "Edited on: ${SimpleDateFormat.getDateInstance().format(Date())}"
         }else{
+            color = note.color
             title.setText(note.title)
             content.renderMD(note.content)
             lastEdit.text = "Edited on ${note.date}"
