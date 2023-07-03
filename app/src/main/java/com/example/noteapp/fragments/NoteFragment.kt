@@ -111,6 +111,11 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             navController.navigate(NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment())
         }
 
+        noteBinding.innerFab.setOnClickListener {
+            noteBinding.appBar.visibility = View.INVISIBLE
+            navController.navigate(NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment())
+        }
+
         noteBinding.tvSearch.setOnClickListener {
             noteBinding.appBar.visibility = View.INVISIBLE
             navController.navigate(NoteFragmentDirections.actionNoteFragmentToSearchFragment())

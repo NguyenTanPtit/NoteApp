@@ -4,9 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.RecyclerView
 import com.example.noteapp.R
 import com.example.noteapp.databinding.NoteItemLayoutBinding
+import com.example.noteapp.fragments.NoteFragmentDirections
+import com.example.noteapp.fragments.SearchFragmentDirections
 import com.example.noteapp.model.Note
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textview.MaterialTextView
@@ -53,16 +57,32 @@ class SearchRecAdapter(private var list: MutableList<Note>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val note = list[position]
         holder.apply {
+            parent.transitionName = "recyclerView_${note.Id}"
             title.text = note.title
             markwon.setMarkdown(content,note.content)
             parent.setCardBackgroundColor(note.color)
 
             itemView.setOnClickListener {
+                val action = SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
+                    .setNote(note)
 
+                val extras = FragmentNavigatorExtras(parent to "recyclerView_${note.Id}")
+
+                Navigation.findNavController(it).navigate(action,extras)
             }
 
             content.setOnClickListener {
+                val action = SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
+                    .setNote(note)
+                val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
+                Navigation.findNavController(it).navigate(action,extras)
+            }
 
+            title.setOnClickListener{
+                val action = SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
+                    .setNote(note)
+                val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
+                Navigation.findNavController(it).navigate(action,extras)
             }
         }
     }
