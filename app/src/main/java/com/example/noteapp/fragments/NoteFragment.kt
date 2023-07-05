@@ -70,7 +70,6 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.absoluteAdapterPosition
                 val note = noteAdapter.currentList[position]
-                var actionBtnTapped = false
                 noteActivityViewModel.deleteNote(note)
                 val snackbar = Snackbar.make(
                     requireView(),"Deleted", Snackbar.LENGTH_LONG
@@ -82,7 +81,6 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                     override fun onShown(transientBottomBar: Snackbar?) {
                         transientBottomBar?.setAction("Undo"){
                             noteActivityViewModel.saveNote(note)
-                            actionBtnTapped = true
                             noteBinding.noData.isVisible = false
                         }
 

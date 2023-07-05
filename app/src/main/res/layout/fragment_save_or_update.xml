@@ -94,6 +94,7 @@
                         android:id="@+id/edtTile"
                         android:inputType="none"
                         android:textSize="22sp"
+                        android:textCursorDrawable="@drawable/color_cursor"
                         android:importantForAutofill="no"
                         android:fontFamily="@font/google_sans_medium"
                         android:hint="Title" />
@@ -111,9 +112,11 @@
                         android:inputType="none"
                         android:paddingEnd="10dp"
                         android:paddingBottom="10dp"
+                        android:textCursorDrawable="@drawable/color_cursor"
                         android:paddingTop="10dp"
                         android:textSize="16sp"
-                        android:id="@+id/edtNoteContent" />
+                        android:id="@+id/edtNoteContent"
+                        tools:ignore="RtlSymmetry" />
 
 
                 </LinearLayout>

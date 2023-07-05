@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "370131066557",
+    "firebase_url": "https://noteapp-nguyentan-default-rtdb.firebaseio.com",
+    "project_id": "noteapp-nguyentan",
+    "storage_bucket": "noteapp-nguyentan.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370131066557:android:22bc13f5b9ea6a87b121d4",
+        "android_client_info": {
+          "package_name": "com.example.noteapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "370131066557-sc8q4oocjjm3r993ev8ekf0m92s23v8c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.noteapp",
+            "certificate_hash": "76d3b09dec69890b5b54285edf98ffef401a6b80"
+          }
+        },
+        {
+          "client_id": "370131066557-erjdrv5savevuokj252mppn3k0l8jea1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJdvv-its9GRXJ69fUptnh89hZ0ekHcHE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "370131066557-e34s3bkajf56vevcijoceudqs7ca7o4h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
