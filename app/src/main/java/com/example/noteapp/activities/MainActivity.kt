@@ -1,9 +1,8 @@
 package com.example.noteapp.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.noteapp.R
 import com.example.noteapp.databinding.ActivityMainBinding
 import com.example.noteapp.db.NoteDB
 import com.example.noteapp.repository.NoteRepository

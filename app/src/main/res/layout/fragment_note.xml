@@ -8,6 +8,7 @@
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".fragments.NoteFragment">
@@ -177,10 +178,19 @@
             app:menu="@menu/menu_nav"
             android:animateLayoutChanges="true"
             app:headerLayout="@layout/nav_header"
-            android:translationZ="10dp"
+            android:translationX="-250dp"
+            android:translationZ="20dp"
             android:animationCache="false"
             android:clipToPadding="false"
             android:overScrollMode="ifContentScrolls"/>
+        <View
+            android:id="@+id/coverView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="#00000000"
+            android:visibility="gone"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

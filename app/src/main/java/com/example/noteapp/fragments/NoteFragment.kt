@@ -1,5 +1,8 @@
 package com.example.noteapp.fragments
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
@@ -38,6 +41,10 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private lateinit var navController : NavController
     private lateinit var noteAdapter: NoteRecAdapter
 
+    private enum class NavState{
+        Opened, Closed
+    }
+    private var navState = NavState.Closed
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
         exitTransition = MaterialElevationScale(false).apply {
@@ -133,6 +140,34 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                 }
             }
 
+        }
+
+        noteBinding.menu.setOnClickListener {
+            if(navState==NavState.Closed) {
+                val animator = ObjectAnimator.ofFloat(noteBinding.navView, "translationX", 0f)
+                animator.duration = 350
+                animator.start()
+                noteBinding.coverView.visibility= View.VISIBLE
+                navState = NavState.Opened
+            }else{
+                return@setOnClickListener
+            }
+        }
+
+        noteBinding.coverView.setOnClickListener {
+
+            if(navState==NavState.Opened){
+                val animator = ObjectAnimator.ofFloat(noteBinding.navView, "translationX", -660f)
+                animator.duration = 350
+                animator.start()
+                navState = NavState.Closed
+                animator.addListener(object : AnimatorListenerAdapter(){
+                    override fun onAnimationEnd(animation: Animator) {
+                        super.onAnimationEnd(animation)
+                        noteBinding.coverView.visibility = View.GONE
+                    }
+                })
+            }
         }
     }
 
