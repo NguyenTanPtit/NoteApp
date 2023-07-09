@@ -31,6 +31,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 
@@ -126,6 +128,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             navController.navigate(NoteFragmentDirections.actionNoteFragmentToSearchFragment())
         }
 
+        // hide text when scroll rec
         noteBinding.recNote.setOnScrollChangeListener{_,scrollX,scrollY,_,oldScroll->
             when{
                 scrollY>oldScroll->{
@@ -141,33 +144,41 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             }
 
         }
-
+        //open Nav
         noteBinding.menu.setOnClickListener {
             if(navState==NavState.Closed) {
                 val animator = ObjectAnimator.ofFloat(noteBinding.navView, "translationX", 0f)
-                animator.duration = 350
+                animator.duration = 400
                 animator.start()
                 noteBinding.coverView.visibility= View.VISIBLE
                 navState = NavState.Opened
+                noteBinding.navView.menu.getItem(0).isChecked = true
             }else{
                 return@setOnClickListener
             }
         }
-
+        //close Nav
         noteBinding.coverView.setOnClickListener {
+            closeNav()
+        }
 
-            if(navState==NavState.Opened){
-                val animator = ObjectAnimator.ofFloat(noteBinding.navView, "translationX", -660f)
-                animator.duration = 350
-                animator.start()
-                navState = NavState.Closed
-                animator.addListener(object : AnimatorListenerAdapter(){
-                    override fun onAnimationEnd(animation: Animator) {
-                        super.onAnimationEnd(animation)
-                        noteBinding.coverView.visibility = View.GONE
-                    }
-                })
+        noteBinding.navView.setNavigationItemSelectedListener { menuItem ->
+            when(menuItem.itemId){
+                R.id.note ->{
+                    closeNav()
+                }
+
+                R.id.reminder ->{
+                    closeNav()
+                    navController.navigate(NoteFragmentDirections.actionNoteFragmentToRemindersFragment())
+                }
+
+                R.id.setting ->{
+                    closeNav()
+                    navController.navigate(NoteFragmentDirections.actionNoteFragmentToSettingFragment())
+                }
             }
+            true
         }
     }
 
@@ -200,4 +211,20 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             noteAdapter.submitList(list)
         }
     }
+    private fun closeNav(){
+        if(navState==NavState.Opened){
+            val animator = ObjectAnimator.ofFloat(noteBinding.navView, "translationX", -660f)
+            animator.duration = 400
+            animator.start()
+            navState = NavState.Closed
+            animator.addListener(object : AnimatorListenerAdapter(){
+                override fun onAnimationEnd(animation: Animator) {
+                    super.onAnimationEnd(animation)
+                    noteBinding.coverView.visibility = View.GONE
+                }
+            })
+        }
+    }
+
+
 }

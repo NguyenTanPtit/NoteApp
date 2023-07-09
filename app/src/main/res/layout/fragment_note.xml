@@ -73,7 +73,7 @@
                             android:id="@+id/profile_img"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
-                            android:layout_marginStart="110dp"
+                            android:layout_marginStart="10dp"
                             android:layout_marginTop="3dp" />
                     </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -176,6 +176,7 @@
             android:background="@color/white"
             android:elevation="8dp"
             app:menu="@menu/menu_nav"
+            app:theme="@style/navTheme"
             android:animateLayoutChanges="true"
             app:headerLayout="@layout/nav_header"
             android:translationX="-250dp"
