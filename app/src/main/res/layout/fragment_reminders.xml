@@ -3,9 +3,136 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.RemindersFragment">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:liftOnScroll="true"
+        android:id="@+id/app_bar">
 
+        <com.google.android.material.appbar.MaterialToolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            app:layout_scrollFlags="enterAlways|scroll">
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <LinearLayout
+                    android:id="@+id/search_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="15dp"
+                    android:background="@drawable/bg_edt_search"
+                    android:orientation="horizontal"
+                    android:gravity="start"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginEnd="15dp">
+
+                    <ImageView
+                        android:id="@+id/menu"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:src="@drawable/icon_menu"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="3dp"/>
+
+                    <TextView
+                        android:id="@+id/tvSearch"
+                        android:layout_width="250dp"
+                        android:layout_height="wrap_content"
+                        android:text="Search your reminders"
+                        android:textSize="18sp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="@font/google_sans_regular"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/black"
+                        android:layout_marginStart="20dp" />
+
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recReminder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="5dp"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        android:clipToPadding="false"
+        android:transitionGroup="true"
+        tools:listitem="@layout/reminder_item_layout" />
+    <LinearLayout
+        android:id="@+id/add_note_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:focusable="true"
+        android:clickable="true"
+        android:clipToPadding="true"
+        android:animateLayoutChanges="true"
+        android:orientation="horizontal"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/black"
+        android:background="@drawable/fab_btn_corner">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/inner_fab"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/icons8_add_reminder_80"
+            android:backgroundTint="@color/black"
+            app:tint="@color/white"
+            app:fabCustomSize="60dp"
+            app:fabSize="mini"
+            android:elevation="0dp"
+            app:useCompatPadding="false"
+            app:borderWidth="0dp" />
+
+
+
+    </LinearLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navView"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/white"
+        android:elevation="8dp"
+        app:menu="@menu/menu_nav"
+        app:theme="@style/navTheme"
+        android:animateLayoutChanges="true"
+        app:headerLayout="@layout/nav_header"
+        android:translationX="-250dp"
+        android:translationZ="20dp"
+        android:animationCache="false"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls"/>
+    <View
+        android:id="@+id/coverView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="#00000000"
+        android:visibility="gone"/>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
