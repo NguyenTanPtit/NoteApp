@@ -91,6 +91,8 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
                         transientBottomBar?.setAction("Undo"){
                             noteActivityViewModel.saveNote(note)
                             noteBinding.noData.isVisible = false
+                            noteBinding.noDataText.isVisible = false
+
                         }
 
                         super.onShown(transientBottomBar)
@@ -115,16 +117,19 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private fun setOnClick(){
         noteBinding.addNoteFab.setOnClickListener {
             noteBinding.appBar.visibility = View.INVISIBLE
+            closeNav()
             navController.navigate(NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment())
         }
 
         noteBinding.innerFab.setOnClickListener {
             noteBinding.appBar.visibility = View.INVISIBLE
+            closeNav()
             navController.navigate(NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment())
         }
 
         noteBinding.tvSearch.setOnClickListener {
             noteBinding.appBar.visibility = View.INVISIBLE
+            closeNav()
             navController.navigate(NoteFragmentDirections.actionNoteFragmentToSearchFragment())
         }
 
@@ -208,6 +213,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private fun observerDataChange(){
         noteActivityViewModel.getAllNote().observe(viewLifecycleOwner){list ->
             noteBinding.noData.isVisible = list.isEmpty()
+            noteBinding.noDataText.isVisible = list.isEmpty()
             noteAdapter.submitList(list)
         }
     }

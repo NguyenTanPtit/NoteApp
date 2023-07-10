@@ -68,14 +68,14 @@ class NoteRecAdapter : ListAdapter<Note,NoteRecAdapter.NotesViewHolder>(DiffUtil
                 content.setOnClickListener {
                     val action = NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment()
                         .setNote(note)
-                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
+                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${note.Id}")
                     Navigation.findNavController(it).navigate(action,extras)
                 }
 
                 title.setOnClickListener{
                     val action = NoteFragmentDirections.actionNoteFragmentToSaveOrUpdateFragment()
                         .setNote(note)
-                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
+                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${note.Id}")
                     Navigation.findNavController(it).navigate(action,extras)
                 }
             }

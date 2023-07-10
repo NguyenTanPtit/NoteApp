@@ -5,15 +5,18 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.noteapp.model.Note
+import com.example.noteapp.model.Reminder
 
 @Database(
-    entities = [Note::class],
-    version = 1,
+    entities = [Note::class,Reminder::class],
+    version = 2,
     exportSchema = false
 )
 abstract class NoteDB : RoomDatabase() {
 
     abstract fun getNoteDao():DAO
+
+    abstract fun getReminderDao():ReminderDAO
 
     companion object{
 
@@ -30,6 +33,6 @@ abstract class NoteDB : RoomDatabase() {
 
         private fun createDatabase(context: Context) = Room.databaseBuilder(
             context.applicationContext,NoteDB::class.java,"note_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 }

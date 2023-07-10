@@ -108,6 +108,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
+                android:id="@+id/noDataText"
                 android:layout_width="180dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
