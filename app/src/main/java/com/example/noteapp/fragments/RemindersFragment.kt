@@ -13,6 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.noteapp.R
 import com.example.noteapp.databinding.FragmentRemindersBinding
+import com.example.noteapp.model.Reminder
 import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialElevationScale
 
@@ -84,6 +85,8 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
             }
             true
         }
+
+
     }
 
     private fun closeNav(){
