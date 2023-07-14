@@ -60,10 +60,25 @@
         <action
             android:id="@+id/action_remindersFragment_to_settingFragment"
             app:destination="@id/settingFragment" />
+        <action
+            android:id="@+id/action_remindersFragment_to_saveOrUpdateReminderFragment"
+            app:destination="@id/saveOrUpdateReminderFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingFragment"
         android:name="com.example.noteapp.fragments.SettingFragment"
         android:label="fragment_setting"
         tools:layout="@layout/fragment_setting" />
+    <fragment
+        android:id="@+id/saveOrUpdateReminderFragment"
+        android:name="com.example.noteapp.fragments.SaveOrUpdateReminderFragment"
+        android:label="SaveOrUpdateReminderFragment" >
+        <action
+            android:id="@+id/action_saveOrUpdateReminderFragment_to_remindersFragment"
+            app:destination="@id/remindersFragment" />
+        <argument android:name="reminder"
+            android:defaultValue="@null"
+            app:argType="com.example.noteapp.model.Reminder"
+            app:nullable="true"/>
+    </fragment>
 </navigation>

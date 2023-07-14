@@ -86,6 +86,10 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
             true
         }
 
+        binding.innerFab.setOnClickListener {
+            navController.navigate(RemindersFragmentDirections
+                .actionRemindersFragmentToSaveOrUpdateReminderFragment())
+        }
 
     }
 
