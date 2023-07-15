@@ -182,7 +182,6 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
                     )
                 }
                 else ->{
-                    //TODO: update note
                     updateNote()
                     navController.popBackStack()
                 }

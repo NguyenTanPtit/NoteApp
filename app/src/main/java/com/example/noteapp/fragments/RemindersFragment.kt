@@ -3,19 +3,22 @@ package com.example.noteapp.fragments
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
-import android.graphics.Color
+import android.content.res.Configuration
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.noteapp.R
+import com.example.noteapp.adapter.ReminderAdapter
 import com.example.noteapp.databinding.FragmentRemindersBinding
-import com.example.noteapp.model.Reminder
-import com.google.android.material.transition.MaterialContainerTransform
+import com.example.noteapp.viewModel.NoteActivityViewModel
 import com.google.android.material.transition.MaterialElevationScale
+import java.util.concurrent.TimeUnit
 
 
 class RemindersFragment : Fragment(R.layout.fragment_reminders) {
@@ -24,6 +27,10 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
     private val binding: FragmentRemindersBinding
         get() = _binding!!
     private lateinit var navController: NavController
+
+    private lateinit var remindAdapter: ReminderAdapter
+
+    private val noteViewModel : NoteActivityViewModel by activityViewModels()
 
     private enum class NavState{
         Opened, Closed
@@ -40,6 +47,7 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
+        initRec()
         setOnClick()
     }
 
@@ -105,6 +113,34 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
                     binding.coverView.visibility = View.GONE
                 }
             })
+        }
+    }
+
+    private fun initRec(){
+        when(resources.configuration.orientation){
+            Configuration.ORIENTATION_LANDSCAPE -> displayRec(3)
+            Configuration.ORIENTATION_PORTRAIT -> displayRec(2)
+        }
+    }
+
+    private fun displayRec(spanCount:Int){
+        binding.recReminder.apply {
+            layoutManager = StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL)
+            setHasFixedSize(true)
+            remindAdapter = ReminderAdapter()
+            adapter = remindAdapter
+            postponeEnterTransition(300L, TimeUnit.MILLISECONDS)
+            viewTreeObserver.addOnPreDrawListener {
+                startPostponedEnterTransition()
+                true
+            }
+        }
+        observerDataChange()
+    }
+
+    private fun observerDataChange(){
+        noteViewModel.getAllRemind().observe(viewLifecycleOwner){ list->
+            remindAdapter.submitList(list)
         }
     }
 
