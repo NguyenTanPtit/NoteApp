@@ -1,21 +1,27 @@
 package com.example.noteapp.fragments
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.noteapp.R
+import com.example.noteapp.databinding.DialogPickTimeBinding
 import com.example.noteapp.databinding.FragmentSaveOrUpdateReminderBinding
 import com.example.noteapp.model.Reminder
 import com.example.noteapp.utils.hideKeyboard
 import com.example.noteapp.viewModel.NoteActivityViewModel
 import com.google.android.material.transition.MaterialContainerTransform
+import java.text.SimpleDateFormat
 
 
 class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_reminder) {
@@ -29,6 +35,25 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
     private val noteActivityViewModel : NoteActivityViewModel by activityViewModels()
     private val arg : SaveOrUpdateReminderFragmentArgs by navArgs()
 
+    private lateinit var dialogBinding: DialogPickTimeBinding
+    private lateinit var dateTimePickDialog : AlertDialog
+    private var alarmYear = -1
+    private var alarmMonth = -1
+    private var alarmDay = -1
+    private var alarmHour = -1
+    private var alarmMinute = -1
+
+    @SuppressLint("SimpleDateFormat")
+    private val simpleDateFormat = SimpleDateFormat("MMMM:dd")
+    @SuppressLint("SimpleDateFormat")
+    private val simpleTimeFormat = SimpleDateFormat("HH:mm")
+
+    private val itemSpinnerDate = arrayOf("Today","Tomorrow","Pick a date...")
+    private val itemSpinnerTime = arrayOf("18:00","20:00","Pick a time...")
+
+    private var dateSpinnerAdapter : ArrayAdapter<String>? = null
+    private var timeSpinnerAdapter : ArrayAdapter<String>? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,7 +66,9 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
+        dialogBinding = DialogPickTimeBinding.inflate(LayoutInflater.from(context))
         setOnClick()
+        dialogSetOnClick()
     }
 
     private fun setOnClick(){
@@ -52,6 +79,40 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
         binding.saveNote.setOnClickListener {
             saveOrUpdateReminder()
+        }
+
+        binding.timePicker.setOnClickListener {
+            val builder : AlertDialog.Builder = AlertDialog.Builder(context)
+            builder.setCancelable(true)
+
+            if(dateSpinnerAdapter == null) {
+                dateSpinnerAdapter = ArrayAdapter(
+                    requireContext(), R.layout.spinner_date_time_item, itemSpinnerDate
+                )
+                dateSpinnerAdapter?.setDropDownViewResource(R.layout.spinner_date_time_item)
+            }
+            dialogBinding.spinnerDate.adapter = dateSpinnerAdapter
+            dialogBinding.spinnerDate.dropDownHorizontalOffset = -300
+            if(timeSpinnerAdapter == null) {
+                timeSpinnerAdapter = ArrayAdapter(
+                    requireContext(), R.layout.spinner_date_time_item, itemSpinnerTime
+                )
+                timeSpinnerAdapter?.setDropDownViewResource(R.layout.spinner_date_time_item)
+            }
+
+            dialogBinding.spinnerTime.adapter = timeSpinnerAdapter
+
+            dialogBinding.pickDate.setOnClickListener {
+                dialogBinding.spinnerDate.performClick()
+            }
+
+            dialogBinding.pickTime.setOnClickListener {
+                dialogBinding.spinnerTime.performClick()
+            }
+            builder.setView(dialogBinding.root)
+            dateTimePickDialog = builder.create()
+            dateTimePickDialog.show()
+            dateTimePickDialog.window?.setBackgroundDrawableResource(R.drawable.bg_alert_dialog)
         }
     }
 
@@ -97,6 +158,40 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
     private fun updateReminder(){
         //TODO: Not Implement yet
+    }
+
+    private fun dialogSetOnClick(){
+        dialogBinding.spinnerDate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+               // TODO("Not yet implemented")
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //TODO("Not yet implemented")
+            }
+
+        }
+
+        dialogBinding.spinnerTime.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //TODO("Not yet implemented")
+            }
+
+        }
     }
 
 }
