@@ -2,14 +2,21 @@ package com.example.noteapp.fragments
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.app.TimePickerDialog.OnTimeSetListener
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.DatePicker
+import android.widget.TimePicker
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -22,6 +29,7 @@ import com.example.noteapp.utils.hideKeyboard
 import com.example.noteapp.viewModel.NoteActivityViewModel
 import com.google.android.material.transition.MaterialContainerTransform
 import java.text.SimpleDateFormat
+import java.util.Calendar
 
 
 class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_reminder) {
@@ -37,22 +45,23 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
     private lateinit var dialogBinding: DialogPickTimeBinding
     private lateinit var dateTimePickDialog : AlertDialog
-    private var alarmYear = -1
-    private var alarmMonth = -1
-    private var alarmDay = -1
+
     private var alarmHour = -1
     private var alarmMinute = -1
 
     @SuppressLint("SimpleDateFormat")
-    private val simpleDateFormat = SimpleDateFormat("MMMM:dd")
+    private val simpleDateFormat = SimpleDateFormat("MMMM dd")
     @SuppressLint("SimpleDateFormat")
     private val simpleTimeFormat = SimpleDateFormat("HH:mm")
+
+    private var currentPosDate = -1
 
     private val itemSpinnerDate = arrayOf("Today","Tomorrow","Pick a date...")
     private val itemSpinnerTime = arrayOf("18:00","20:00","Pick a time...")
 
     private var dateSpinnerAdapter : ArrayAdapter<String>? = null
     private var timeSpinnerAdapter : ArrayAdapter<String>? = null
+    private var calendar:Calendar = Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -113,6 +122,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
             dateTimePickDialog = builder.create()
             dateTimePickDialog.show()
             dateTimePickDialog.window?.setBackgroundDrawableResource(R.drawable.bg_alert_dialog)
+            dialogSetOnClick()
         }
     }
 
@@ -162,13 +172,34 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
     private fun dialogSetOnClick(){
         dialogBinding.spinnerDate.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            @SuppressLint("SetTextI18n")
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
                 position: Int,
                 id: Long
             ) {
-               // TODO("Not yet implemented")
+                if(currentPosDate==position){
+                    onItemSelected(parent,view,0,id)
+                }
+                else {
+                    currentPosDate = position
+                    when (parent?.getItemAtPosition(position).toString()) {
+                        "Today" -> {
+                            dialogBinding.dateVal.text = "Today"
+                        }
+
+                        "Tomorrow" -> {
+                            calendar.add(Calendar.DATE, 1)
+                            dialogBinding.dateVal.text = "Tomorrow"
+                        }
+
+                        "Pick a date..." -> {
+                            showDatePicker()
+                        }
+                    }
+                }
+                Log.d("select",parent?.getItemAtPosition(position).toString() )
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -178,13 +209,28 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         }
 
         dialogBinding.spinnerTime.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            @SuppressLint("SetTextI18n")
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
                 position: Int,
                 id: Long
             ) {
-                //TODO("Not yet implemented")
+                when(parent?.getItemAtPosition(position).toString()){
+                    "18:00" ->{
+                        calendar.set(Calendar.HOUR_OF_DAY,18)
+                        dialogBinding.timeVal.text = "18:00"
+                    }
+
+                    "20:00" ->{
+                        calendar.set(Calendar.HOUR_OF_DAY,20)
+                        dialogBinding.timeVal.text = "20:00"
+                    }
+
+                    else ->{
+                        showTimePicker()
+                    }
+                }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -192,6 +238,48 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
             }
 
         }
+    }
+
+    private fun showTimePicker() {
+        val calendarNow = Calendar.getInstance()
+        val hourNow = calendarNow.get(Calendar.HOUR_OF_DAY)
+        val minNow = calendarNow.get(Calendar.MINUTE)
+        val timePickerDialog = TimePickerDialog(requireContext(),
+            { view, hourOfDay, minute ->
+                calendar.set(Calendar.HOUR_OF_DAY,hourOfDay)
+                calendar.set(Calendar.MINUTE,minute)
+                dialogBinding.timeVal.text = "$hourOfDay:$minute"
+            },hourNow,minNow,true)
+        timePickerDialog.show()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showDatePicker(){
+        val calendarNow = Calendar.getInstance()
+        val yearNow = calendarNow.get(Calendar.YEAR)
+        val monthNow = calendarNow.get(Calendar.MONTH)
+        Log.d("monthNow", monthNow.toString())
+        val dateNow = calendarNow.get(Calendar.DAY_OF_MONTH)
+
+        // Create a date picker dialog
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { view: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+               if (yearNow==year && monthNow == month  && dateNow == dayOfMonth){
+                   dialogBinding.dateVal.text = "Today"
+               }else if(yearNow==year && monthNow== month  && dateNow == dayOfMonth -1){
+                   calendar.add(Calendar.DATE,1)
+                   dialogBinding.dateVal.text = "Tomorrow"
+               }else{
+                   calendar.set(year,month,dayOfMonth)
+                   dialogBinding.dateVal.text = simpleDateFormat.format(calendar.time)
+               }
+            },
+            yearNow,
+            monthNow,
+            dateNow
+        )
+        datePickerDialog.show()
     }
 
 }

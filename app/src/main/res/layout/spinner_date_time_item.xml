@@ -6,6 +6,7 @@
     android:paddingStart="15dp"
     android:paddingEnd="15dp"
     android:textColor="@color/black"
+    android:background="@drawable/bg_linear_date_time"
     android:fontFamily="@font/google_sans_regular"
     android:textSize="20sp">
 
