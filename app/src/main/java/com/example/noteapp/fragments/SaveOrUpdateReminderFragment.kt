@@ -17,7 +17,9 @@ import android.widget.ArrayAdapter
 import android.widget.DatePicker
 import android.widget.TimePicker
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
@@ -42,6 +44,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
     private var reminder : Reminder? = null
     private val noteActivityViewModel : NoteActivityViewModel by activityViewModels()
     private val arg : SaveOrUpdateReminderFragmentArgs by navArgs()
+    private lateinit var result : String
 
     private lateinit var dialogBinding: DialogPickTimeBinding
     private lateinit var dateTimePickDialog : AlertDialog
@@ -150,8 +153,14 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
                     //TODO: Save new Reminder
                     saveReminder(
                         Reminder(0,
-                    title,content,"date here",-1,"time here")
+                    title,content,simpleDateFormat.format(calendar.time),-1,simpleTimeFormat.format(calendar.time))
                     )
+                    result = "Reminder Saved"
+                    setFragmentResult(
+                        "key", bundleOf("bundleKey" to result)
+                    )
+                    navController.navigate(SaveOrUpdateReminderFragmentDirections
+                        .actionSaveOrUpdateReminderFragmentToRemindersFragment())
                 }
                 else ->{
                     //TODO: Update Reminder
@@ -163,7 +172,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
     }
 
     private fun saveReminder(reminder: Reminder){
-        //TODO: Not Implement yet
+        noteActivityViewModel.saveReminder(reminder,requireContext(),calendar)
     }
 
     private fun updateReminder(){

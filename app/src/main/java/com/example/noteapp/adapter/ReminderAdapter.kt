@@ -1,5 +1,6 @@
 package com.example.noteapp.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,6 +47,7 @@ class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>
             .inflate(R.layout.reminder_item_layout,parent,false))
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ReminderViewHolder, position: Int) {
         getItem(position).let { reminder ->
             holder.apply {
@@ -53,7 +55,7 @@ class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>
                 title.text = reminder.title
                 markwon.setMarkdown(content,reminder.content)
                 parent.setCardBackgroundColor(reminder.color)
-                time.text = reminder.time
+                time.text = " ${reminder.date}, ${reminder.time}"
 
                 parent.setOnClickListener{
                     val action = RemindersFragmentDirections.
