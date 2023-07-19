@@ -55,7 +55,7 @@ class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>
                 title.text = reminder.title
                 markwon.setMarkdown(content,reminder.content)
                 parent.setCardBackgroundColor(reminder.color)
-                time.text = " ${reminder.date}, ${reminder.time}"
+                time.text = reminder.time
 
                 parent.setOnClickListener{
                     val action = RemindersFragmentDirections.

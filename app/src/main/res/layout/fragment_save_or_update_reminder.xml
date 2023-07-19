@@ -8,6 +8,7 @@
     </data>
 
     <RelativeLayout
+        android:id="@+id/remindContentParent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".fragments.SaveOrUpdateReminderFragment">
@@ -15,7 +16,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:id="@+id/toolbarFragmentNoteContent">
+            android:id="@+id/toolbarFragmentContent">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -69,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/bottomBar"
-            android:layout_below="@id/toolbarFragmentNoteContent">
+            android:layout_below="@id/toolbarFragmentContent">
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"

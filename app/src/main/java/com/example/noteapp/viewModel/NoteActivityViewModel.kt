@@ -107,4 +107,8 @@ class NoteActivityViewModel(private val repo: NoteRepository) : ViewModel() {
             alertDialog.cancel()
         }
     }
+
+    fun updateReminder(reminder: Reminder)=viewModelScope.launch{
+        repo.updateReminder(reminder)
+    }
 }
