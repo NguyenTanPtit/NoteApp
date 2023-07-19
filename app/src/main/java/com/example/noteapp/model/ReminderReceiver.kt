@@ -45,7 +45,7 @@ class ReminderReceiver :BroadcastReceiver(){
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentTitle(title)
-            .setContentText("$content \n at $time")
+            .setContentText("$content at $time")
             .setDeleteIntent(pendingIntent)
             .setGroup("Reminder").build()
 

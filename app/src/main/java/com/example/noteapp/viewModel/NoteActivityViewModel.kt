@@ -108,7 +108,8 @@ class NoteActivityViewModel(private val repo: NoteRepository) : ViewModel() {
         }
     }
 
-    fun updateReminder(reminder: Reminder)=viewModelScope.launch{
+    fun updateReminder(reminder: Reminder,context: Context,calendar: Calendar)=viewModelScope.launch{
         repo.updateReminder(reminder)
+        setNotifyReminder(reminder,context,calendar)
     }
 }

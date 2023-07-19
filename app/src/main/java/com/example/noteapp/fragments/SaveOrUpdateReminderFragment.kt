@@ -181,10 +181,19 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
     @SuppressLint("SetTextI18n")
     private fun initDialog() {
+        val reminder = arg.reminder
         calendar.set(Calendar.MINUTE, 0)
         val builder: AlertDialog.Builder = AlertDialog.Builder(context)
         builder.setCancelable(true)
         initSpinner()
+
+        if(reminder!=null){
+            dialogBinding.apply {
+                timeVal.text = reminder.time.substringAfterLast(',')
+                dateVal.text = reminder.time.substringBeforeLast(',')
+                Log.d("timeRemind",reminder.time.substringAfterLast(','))
+            }
+        }
         dialogBinding.btnSave.setOnClickListener {
             if (calendar.get(Calendar.DAY_OF_MONTH) == calendarEdit.get(Calendar.DAY_OF_MONTH)) {
                 binding.remindTime.text = "Today, ${simpleTimeFormat.format(calendar.time)}"
@@ -272,7 +281,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
                 simpleDateFormat.format(calendarEdit.time),
                 color,
                 binding.remindTime.text.toString()
-            ))
+            ),requireContext(),calendar)
         }
     }
 
