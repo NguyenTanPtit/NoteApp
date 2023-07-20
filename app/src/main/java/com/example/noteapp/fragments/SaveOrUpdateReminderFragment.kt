@@ -106,6 +106,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
             if (dateTimeRemind != null) {
                 val timeRemind = reminder.time.substringAfterLast(' ')
                 calendarInit.time = dateTimeRemind
+                calendar.time = dateTimeRemind
                 val calendarToday = Calendar.getInstance()
                 if(checkDate(calendarInit,calendarToday)=="Today"){
                     time.text = "Today, $timeRemind"
@@ -237,7 +238,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
     private fun saveOrUpdateReminder() {
         val title = binding.edtTitle.text.toString()
-        val content = binding.edtContent.text.toString()
+        val content = binding.edtContent.getMD()
         if (title.isEmpty() || content.isEmpty()) {
             //TODO: show dialog warning
         } else {
