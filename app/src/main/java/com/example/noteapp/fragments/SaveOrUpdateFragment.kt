@@ -195,10 +195,8 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
             noteViewModel.updateNote(
                 Note(
                     note!!.Id,
-                    binding.edtTile.text.toString(),
-                    binding.edtNoteContent.getMD(),
-                    currentDate,
-                    color
+                    binding.edtTile.text.toString(), binding.edtNoteContent.getMD(),
+                    currentDate, color
                 )
             )
         }

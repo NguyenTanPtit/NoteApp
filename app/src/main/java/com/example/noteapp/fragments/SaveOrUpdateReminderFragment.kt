@@ -101,7 +101,22 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
             lastEdit.text = "Edited on: ${reminder.date}"
             title.setText(reminder.title)
             content.renderMD(reminder.content)
-            time.text = reminder.time
+            val calendarInit = Calendar.getInstance()
+            val dateTimeRemind = simpleDateTimeFormat.parse(reminder.time)
+            if (dateTimeRemind != null) {
+                val timeRemind = reminder.time.substringAfterLast(' ')
+                calendarInit.time = dateTimeRemind
+                val calendarToday = Calendar.getInstance()
+                if(checkDate(calendarInit,calendarToday)=="Today"){
+                    time.text = "Today, $timeRemind"
+                }else if(checkDate(calendarInit,calendarToday)=="Tomorrow"){
+                    time.text = "Tomorrow, $timeRemind"
+                }else{
+                    time.text = reminder.time
+                }
+            }else{
+                time.text = reminder.time
+            }
             binding.apply {
                 job.launch {
                     delay(10)
@@ -181,19 +196,11 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
     @SuppressLint("SetTextI18n")
     private fun initDialog() {
-        val reminder = arg.reminder
         calendar.set(Calendar.MINUTE, 0)
         val builder: AlertDialog.Builder = AlertDialog.Builder(context)
         builder.setCancelable(true)
         initSpinner()
 
-        if(reminder!=null){
-            dialogBinding.apply {
-                timeVal.text = reminder.time.substringAfterLast(',')
-                dateVal.text = reminder.time.substringBeforeLast(',')
-                Log.d("timeRemind",reminder.time.substringAfterLast(','))
-            }
-        }
         dialogBinding.btnSave.setOnClickListener {
             if (calendar.get(Calendar.DAY_OF_MONTH) == calendarEdit.get(Calendar.DAY_OF_MONTH)) {
                 binding.remindTime.text = "Today, ${simpleTimeFormat.format(calendar.time)}"
@@ -240,12 +247,8 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
                     //save new reminder
                     saveReminder(
                         Reminder(
-                            0,
-                            title,
-                            content,
-                            simpleDateFormat.format(calendarEdit.time),
-                            color,
-                            simpleDateTimeFormat.format(calendar.time)
+                            0, title, content, simpleDateFormat.format(calendarEdit.time),
+                            color, simpleDateTimeFormat.format(calendar.time)
                         )
                     )
                     result = "Reminder Saved"
@@ -275,12 +278,9 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         if(reminder!=null){
             noteActivityViewModel.updateReminder(
                 Reminder(
-                reminder!!.Id,
-                binding.edtTitle.text.toString(),
-                binding.edtContent.getMD(),
-                simpleDateFormat.format(calendarEdit.time),
-                color,
-                binding.remindTime.text.toString()
+                reminder!!.Id, binding.edtTitle.text.toString(),
+                binding.edtContent.getMD(), simpleDateFormat.format(calendarEdit.time),
+                    color, simpleDateTimeFormat.format(calendar.time)
             ),requireContext(),calendar)
         }
     }
@@ -394,7 +394,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
             dateSpinnerAdapter?.setDropDownViewResource(R.layout.spinner_date_time_item)
         }
         dialogBinding.spinnerDate.adapter = dateSpinnerAdapter
-        dialogBinding.spinnerDate.dropDownHorizontalOffset = -300
+
         if (timeSpinnerAdapter == null) {
             timeSpinnerAdapter = ArrayAdapter(
                 requireContext(), R.layout.spinner_date_time_item, itemSpinnerTime
@@ -411,6 +411,18 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         dialogBinding.pickTime.setOnClickListener {
             dialogBinding.spinnerTime.performClick()
         }
+    }
+
+    private fun checkDate(calendarRemind: Calendar, calendarToday:Calendar):String{
+        if (calendarRemind.get(Calendar.YEAR)==calendarToday.get(Calendar.YEAR)){
+            if(calendarRemind.get(Calendar.MONTH)==calendarToday.get(Calendar.MONTH)){
+                if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH))
+                    return "Today"
+                else if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH)+1)
+                    return "Tomorrow"
+            }
+        }
+        return "Else"
     }
 
 }

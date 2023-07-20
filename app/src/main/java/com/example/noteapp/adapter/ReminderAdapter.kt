@@ -19,9 +19,11 @@ import io.noties.markwon.MarkwonVisitor
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tasklist.TaskListPlugin
 import org.commonmark.node.SoftLineBreak
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>(DiffUtilCallBackReminder()) {
-
+    private val simpleDateTimeFormat = SimpleDateFormat("dd/MM/yyyy, HH:mm")
     inner class ReminderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = ReminderItemLayoutBinding.bind(itemView)
         val title = binding.remindItemTitle
@@ -55,7 +57,22 @@ class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>
                 title.text = reminder.title
                 markwon.setMarkdown(content,reminder.content)
                 parent.setCardBackgroundColor(reminder.color)
-                time.text = reminder.time
+                val dateRemind = simpleDateTimeFormat.parse(reminder.time)
+                val timeRemind = reminder.time.substringAfterLast(' ')
+                if(dateRemind!=null) {
+                    val calendarRemind = Calendar.getInstance()
+                    calendarRemind.time = dateRemind
+                    val calendarToday = Calendar.getInstance()
+                    if(checkDate(calendarRemind,calendarToday)=="Today"){
+                        time.text = "Today, $timeRemind"
+                    }else if(checkDate(calendarRemind,calendarToday)=="Tomorrow"){
+                        time.text = "Tomorrow, $timeRemind"
+                    }else
+                        time.text = reminder.time
+                }else{
+                    time.text = reminder.time
+                }
+
 
                 parent.setOnClickListener{
                     val action = RemindersFragmentDirections.
@@ -71,5 +88,16 @@ class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>
         }
     }
 
+    private fun checkDate(calendarRemind: Calendar, calendarToday:Calendar):String{
+        if (calendarRemind.get(Calendar.YEAR)==calendarToday.get(Calendar.YEAR)){
+            if(calendarRemind.get(Calendar.MONTH)==calendarToday.get(Calendar.MONTH)){
+                if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH))
+                    return "Today"
+                else if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH)+1)
+                    return "Tomorrow"
+            }
+        }
+        return "Else"
+    }
 }
 
