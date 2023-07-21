@@ -3,21 +3,31 @@ package com.example.noteapp.fragments
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.noteapp.R
 import com.example.noteapp.adapter.ReminderAdapter
 import com.example.noteapp.databinding.FragmentRemindersBinding
+import com.example.noteapp.utils.SwipeToDelete
 import com.example.noteapp.viewModel.NoteActivityViewModel
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 
@@ -31,6 +41,8 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
     private lateinit var remindAdapter: ReminderAdapter
 
     private val noteViewModel : NoteActivityViewModel by activityViewModels()
+    @SuppressLint("SimpleDateFormat")
+    private val simpleDateTimeFormat = SimpleDateFormat("dd/MM/yyyy, HH:mm")
 
     private enum class NavState{
         Opened, Closed
@@ -49,6 +61,7 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
         navController = Navigation.findNavController(view)
         initRec()
         setOnClick()
+        swipeToDelete(binding.recReminder)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,6 +155,48 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
         noteViewModel.getAllRemind().observe(viewLifecycleOwner){ list->
             remindAdapter.submitList(list)
         }
+    }
+
+    private fun swipeToDelete(recyclerView: RecyclerView) {
+        val swipeToDelete= object : SwipeToDelete(){
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.absoluteAdapterPosition
+                val reminder = remindAdapter.currentList[position]
+                val calendarRemind = Calendar.getInstance()
+                val dateTimeRemind = simpleDateTimeFormat.parse(reminder.time)
+                if(dateTimeRemind!=null) {
+                    calendarRemind.time = dateTimeRemind
+                }
+                noteViewModel.deleteReminder(reminder)
+                val snackbar = Snackbar.make(
+                    requireView(),"Deleted", Snackbar.LENGTH_LONG
+                ).addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>(){
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        super.onDismissed(transientBottomBar, event)
+                    }
+
+                    override fun onShown(transientBottomBar: Snackbar?) {
+                        transientBottomBar?.setAction("Undo"){
+                            noteViewModel.saveReminder(reminder,requireContext(),calendarRemind)
+                        }
+
+                        super.onShown(transientBottomBar)
+                    }
+                }).apply {
+                    animationMode  = Snackbar.ANIMATION_MODE_FADE
+                    setAnchorView(R.id.add_reminder_fab)
+                }
+
+                snackbar.setActionTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),R.color.yellowOrange
+                    )
+                )
+                snackbar.show()
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeToDelete)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
 }

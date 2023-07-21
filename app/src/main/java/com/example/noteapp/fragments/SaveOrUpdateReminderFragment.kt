@@ -107,6 +107,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
                 val timeRemind = reminder.time.substringAfterLast(' ')
                 calendarInit.time = dateTimeRemind
                 calendar.time = dateTimeRemind
+                Log.d("dateRemind", dateTimeRemind.toString())
                 val calendarToday = Calendar.getInstance()
                 if(checkDate(calendarInit,calendarToday)=="Today"){
                     time.text = "Today, $timeRemind"
@@ -130,6 +131,9 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         } else {
             lastEdit.text = "Edited on: ${simpleDateFormat.format(calendarEdit.time)}"
             time.text = "Today, 18:00"
+            calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, 18)
+            calendar.set(Calendar.MINUTE, 0)
         }
     }
 
@@ -215,9 +219,6 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
         dialogBinding.btnCancel.setOnClickListener {
             dateTimePickDialog.dismiss()
-            calendar = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, 18)
-            calendar.set(Calendar.MINUTE, 0)
         }
 
         builder.setView(dialogBinding.root)

@@ -56,17 +56,20 @@ class NoteActivityViewModel(private val repo: NoteRepository) : ViewModel() {
     private fun setNotifyReminder(reminder: Reminder, context: Context?, calendar: Calendar) {
 
         askNotificationPermission(context)
-        val i = Intent(context, ReminderReceiver::class.java)
-        i.putExtra("title", reminder.title)
-        i.putExtra("content", reminder.content)
-        i.putExtra("time", reminder.time)
-        i.putExtra("id", reminder.Id)
+        val calendarNow = Calendar.getInstance()
+        if(calendarNow.timeInMillis<=calendar.timeInMillis) {
+            val i = Intent(context, ReminderReceiver::class.java)
+            i.putExtra("title", reminder.title)
+            i.putExtra("content", reminder.content)
+            i.putExtra("time", reminder.time)
+            i.putExtra("id", reminder.Id)
 
-        val pendingIntent: PendingIntent = PendingIntent
-            .getBroadcast(context, reminder.Id, i, PendingIntent.FLAG_IMMUTABLE)
-        val alarm =
-            context?.applicationContext?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarm.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+            val pendingIntent: PendingIntent = PendingIntent
+                .getBroadcast(context, reminder.Id, i, PendingIntent.FLAG_IMMUTABLE)
+            val alarm =
+                context?.applicationContext?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarm.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+        }
     }
 
     private fun askNotificationPermission(context: Context?) {
@@ -111,5 +114,9 @@ class NoteActivityViewModel(private val repo: NoteRepository) : ViewModel() {
     fun updateReminder(reminder: Reminder,context: Context,calendar: Calendar)=viewModelScope.launch{
         repo.updateReminder(reminder)
         setNotifyReminder(reminder,context,calendar)
+    }
+
+    fun deleteReminder(reminder: Reminder) = viewModelScope.launch {
+        repo.deleteReminder(reminder)
     }
 }
