@@ -33,7 +33,7 @@ class SearchFragment : Fragment() {
     private val noteActivityViewModel:NoteActivityViewModel by activityViewModels()
 
     private lateinit var searchAdapter:SearchRecAdapter
-    private var noteList : MutableList<Note> = mutableListOf()
+    private var resList : MutableList<Any> = mutableListOf()
     private lateinit var navController: NavController
 
     override fun onCreateView(
@@ -63,7 +63,7 @@ class SearchFragment : Fragment() {
         binding.recSearch.apply {
             layoutManager = StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL)
             setHasFixedSize(true)
-            searchAdapter = SearchRecAdapter(noteList)
+            searchAdapter = SearchRecAdapter(resList)
             searchAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
             adapter = searchAdapter
             postponeEnterTransition(300L, TimeUnit.MILLISECONDS)
@@ -95,16 +95,20 @@ class SearchFragment : Fragment() {
                     val text = s.toString()
                     val query = "%$text%"
                     if(query.isNotEmpty()){
+                        searchAdapter.clearList()
                         noteActivityViewModel.searchNote(query).observe(viewLifecycleOwner){
                             searchAdapter.updateList(it)
                         }
+                        noteActivityViewModel.searchReminder(query).observe(viewLifecycleOwner){
+                            searchAdapter.updateList(it)
+                        }
                     }else{
-                        noteList.clear()
-                        searchAdapter.updateList(noteList)
+                        resList.clear()
+                        searchAdapter.updateList(resList)
                     }
                 }else{
-                    noteList.clear()
-                    searchAdapter.updateList(noteList)
+                    resList.clear()
+                    searchAdapter.updateList(resList)
                 }
             }
 

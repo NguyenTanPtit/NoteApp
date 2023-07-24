@@ -9,9 +9,12 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.RecyclerView
 import com.example.noteapp.R
 import com.example.noteapp.databinding.NoteItemLayoutBinding
+import com.example.noteapp.databinding.ReminderItemLayoutBinding
 import com.example.noteapp.fragments.NoteFragmentDirections
+import com.example.noteapp.fragments.RemindersFragmentDirections
 import com.example.noteapp.fragments.SearchFragmentDirections
 import com.example.noteapp.model.Note
+import com.example.noteapp.model.Reminder
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textview.MaterialTextView
 import io.noties.markwon.AbstractMarkwonPlugin
@@ -20,13 +23,19 @@ import io.noties.markwon.MarkwonVisitor
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tasklist.TaskListPlugin
 import org.commonmark.node.SoftLineBreak
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
-class SearchRecAdapter(private var list: MutableList<Note>) :
-    RecyclerView.Adapter<SearchRecAdapter.ViewHolder>() {
+class SearchRecAdapter(private var list: MutableList<Any>) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private val simpleDateTimeFormat = SimpleDateFormat("dd/MM/yyyy, HH:mm")
+    override fun getItemViewType(position: Int): Int {
+        val item = list[position]
+        return if (item is Reminder) 1 else 0
+    }
 
-
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class NoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = NoteItemLayoutBinding.bind(itemView)
         val title: MaterialTextView = binding.noteItemTitle
         val content: TextView = binding.noteContent
@@ -43,53 +52,130 @@ class SearchRecAdapter(private var list: MutableList<Note>) :
                 }
             }).build()
     }
+    inner class ReminderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val binding = ReminderItemLayoutBinding.bind(itemView)
+        val title = binding.remindItemTitle
+        val content:TextView = binding.remindContent
+        val time = binding.remindTime
+        val parent = binding.remindItemParent
+        val markwon = Markwon.builder(itemView.context)
+            .usePlugin(StrikethroughPlugin.create())
+            .usePlugin(TaskListPlugin.create(itemView.context))
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                override fun configureVisitor(builder: MarkwonVisitor.Builder) {
+                    super.configureVisitor(builder)
+                    builder.on(SoftLineBreak::class.java) { visitor, _ ->
+                        visitor.forceNewLine()
+                    }
+                }
+            }).build()
+    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.note_item_layout, parent, false)
-        )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if(viewType ==0) {
+            NoteViewHolder(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.note_item_layout, parent, false)
+            )
+        }else{
+            ReminderViewHolder(LayoutInflater.from(parent.context)
+                .inflate(R.layout.reminder_item_layout,parent,false))
+        }
     }
 
     override fun getItemCount(): Int {
         return list.size
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val note = list[position]
-        holder.apply {
-            parent.transitionName = "recyclerView_${note.Id}"
-            title.text = note.title
-            markwon.setMarkdown(content,note.content)
-            parent.setCardBackgroundColor(note.color)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = list[position]
+        if(item is Note && holder is NoteViewHolder) {
+            holder.apply {
+                parent.transitionName = "recyclerView_${item.Id}"
+                title.text = item.title
+                markwon.setMarkdown(content, item.content)
+                parent.setCardBackgroundColor(item.color)
 
-            itemView.setOnClickListener {
-                val action = SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
-                    .setNote(note)
+                itemView.setOnClickListener {
+                    val action =
+                        SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
+                            .setNote(item)
 
-                val extras = FragmentNavigatorExtras(parent to "recyclerView_${note.Id}")
+                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${item.Id}")
 
-                Navigation.findNavController(it).navigate(action,extras)
+                    Navigation.findNavController(it).navigate(action, extras)
+                }
+
+                content.setOnClickListener {
+                    val action =
+                        SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
+                            .setNote(item)
+                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
+                    Navigation.findNavController(it).navigate(action, extras)
+                }
+
+                title.setOnClickListener {
+                    val action =
+                        SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
+                            .setNote(item)
+                    val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
+                    Navigation.findNavController(it).navigate(action, extras)
+                }
             }
+        }else if(item is Reminder && holder is ReminderViewHolder){
+            holder.apply {
+                parent.transitionName = "reminder_${item.Id}"
+                title.text = item.title
+                markwon.setMarkdown(content,item.content)
+                parent.setCardBackgroundColor(item.color)
+                val dateRemind = simpleDateTimeFormat.parse(item.time)
+                val timeRemind = item.time.substringAfterLast(' ')
+                if(dateRemind!=null) {
+                    val calendarRemind = Calendar.getInstance()
+                    calendarRemind.time = dateRemind
+                    val calendarToday = Calendar.getInstance()
+                    if(checkDate(calendarRemind,calendarToday)=="Today"){
+                        time.text = "Today, $timeRemind"
+                    }else if(checkDate(calendarRemind,calendarToday)=="Tomorrow"){
+                        time.text = "Tomorrow, $timeRemind"
+                    }else
+                        time.text = item.time
+                }else{
+                    time.text = item.time
+                }
 
-            content.setOnClickListener {
-                val action = SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
-                    .setNote(note)
-                val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
-                Navigation.findNavController(it).navigate(action,extras)
-            }
+                parent.setOnClickListener{
+                    val action = RemindersFragmentDirections.
+                    actionRemindersFragmentToSaveOrUpdateReminderFragment().setReminder(item)
 
-            title.setOnClickListener{
-                val action = SearchFragmentDirections.actionSearchFragmentToSaveOrUpdateFragment()
-                    .setNote(note)
-                val extras = FragmentNavigatorExtras(parent to "recyclerView_${position}")
-                Navigation.findNavController(it).navigate(action,extras)
+                    val extras = FragmentNavigatorExtras(parent to "reminder_${item.Id}")
+
+                    Navigation.findNavController(it).navigate(action,extras)
+                }
+
+
             }
         }
     }
 
-    fun updateList(notes: List<Note>){
-        list.clear()
+    fun updateList(notes: List<Any>){
         list.addAll(notes)
         notifyDataSetChanged()
+    }
+
+    fun clearList(){
+        list.clear()
+        notifyDataSetChanged()
+    }
+    private fun checkDate(calendarRemind: Calendar, calendarToday:Calendar):String{
+        if (calendarRemind.get(Calendar.YEAR)==calendarToday.get(Calendar.YEAR)){
+            if(calendarRemind.get(Calendar.MONTH)==calendarToday.get(Calendar.MONTH)){
+                if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH))
+                    return "Today"
+                else if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH)+1)
+                    return "Tomorrow"
+            }
+        }
+        return "Else"
     }
 }

@@ -63,6 +63,9 @@
         <action
             android:id="@+id/action_remindersFragment_to_saveOrUpdateReminderFragment"
             app:destination="@id/saveOrUpdateReminderFragment" />
+        <action
+            android:id="@+id/action_remindersFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingFragment"

@@ -112,6 +112,10 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
                 .actionRemindersFragmentToSaveOrUpdateReminderFragment())
         }
 
+        binding.tvSearch.setOnClickListener {
+            navController.navigate(RemindersFragmentDirections.actionRemindersFragmentToSearchFragment())
+        }
+
     }
 
     private fun closeNav(){

@@ -119,4 +119,8 @@ class NoteActivityViewModel(private val repo: NoteRepository) : ViewModel() {
     fun deleteReminder(reminder: Reminder) = viewModelScope.launch {
         repo.deleteReminder(reminder)
     }
+
+    fun searchReminder(query: String):LiveData<List<Reminder>>{
+       return repo.searchReminder(query)
+    }
 }
