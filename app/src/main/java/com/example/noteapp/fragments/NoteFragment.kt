@@ -17,6 +17,7 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.bumptech.glide.Glide
 import com.example.noteapp.R
 import com.example.noteapp.activities.MainActivity
 import com.example.noteapp.adapter.NoteRecAdapter
@@ -24,6 +25,8 @@ import com.example.noteapp.databinding.FragmentNoteBinding
 import com.example.noteapp.utils.SwipeToDelete
 import com.example.noteapp.utils.hideKeyboard
 import com.example.noteapp.viewModel.NoteActivityViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
@@ -42,6 +45,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private val noteActivityViewModel: NoteActivityViewModel by activityViewModels()
     private lateinit var navController : NavController
     private lateinit var noteAdapter: NoteRecAdapter
+    private lateinit var acc : GoogleSignInAccount
 
     private enum class NavState{
         Opened, Closed
@@ -72,6 +76,10 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
         initRec()
         setOnClick()
         swipeToDelete(noteBinding.recNote)
+        if(GoogleSignIn.getLastSignedInAccount(requireContext()) != null){
+            acc = GoogleSignIn.getLastSignedInAccount(requireContext())!!
+            Glide.with(requireContext()).load(acc.photoUrl).into(noteBinding.profileImg)
+        }
     }
 
     private fun swipeToDelete(recyclerView: RecyclerView) {

@@ -18,11 +18,14 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.bumptech.glide.Glide
 import com.example.noteapp.R
 import com.example.noteapp.adapter.ReminderAdapter
 import com.example.noteapp.databinding.FragmentRemindersBinding
 import com.example.noteapp.utils.SwipeToDelete
 import com.example.noteapp.viewModel.NoteActivityViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
@@ -48,6 +51,8 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
         Opened, Closed
     }
     private var navState = NavState.Closed
+
+    private lateinit var acc : GoogleSignInAccount
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -59,6 +64,11 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
+
+        if(GoogleSignIn.getLastSignedInAccount(requireContext()) != null){
+            acc = GoogleSignIn.getLastSignedInAccount(requireContext())!!
+            Glide.with(requireContext()).load(acc.photoUrl).into(binding.profileImg)
+        }
         initRec()
         setOnClick()
         swipeToDelete(binding.recReminder)

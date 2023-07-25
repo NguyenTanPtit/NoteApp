@@ -1,5 +1,6 @@
 package com.example.noteapp.fragments
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,15 +9,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import com.example.noteapp.R
+import com.example.noteapp.databinding.AlertDialogLoginBinding
 import com.example.noteapp.databinding.FragmentSettingBinding
-import com.example.noteapp.repository.AuthRepository
+import com.example.noteapp.repository.FirebaseRepository
 import com.example.noteapp.repository.ResponseState
+import com.example.noteapp.utils.loadImage
 import com.example.noteapp.viewModel.LoginWithGGViewModel
 import com.example.noteapp.viewModel.LoginWithGGViewModelFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -25,7 +27,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
@@ -38,11 +39,10 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     private val binding : FragmentSettingBinding
         get() = _binding!!
     private lateinit var navController: NavController
-    private lateinit var auth: FirebaseAuth
     private var user: FirebaseUser? = null
     private lateinit var googleSignInClient: GoogleSignInClient
     val RC_SIGN_IN = 0
-    private val loginViewModel: LoginWithGGViewModel by viewModels{LoginWithGGViewModelFactory(repo = AuthRepository())}
+    private val loginViewModel: LoginWithGGViewModel by viewModels{LoginWithGGViewModelFactory(repo = FirebaseRepository())}
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,8 +60,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     }
 
     private fun initView(){
-        auth = Firebase.auth
-        user = auth.currentUser
+        user = Firebase.auth.currentUser
         initGoogleSignInClient()
         binding.progress.visibility = View.GONE
         if (user!=null){
@@ -85,9 +84,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 val account = task.getResult(ApiException::class.java) !!
-                if (account != null) {
-                    getGoogleAuthCredential(account)
-                }
+                getGoogleAuthCredential(account)
 
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
@@ -151,8 +148,8 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
 
         binding.syncBtn.setOnClickListener {
             if (user == null){
-                //TODO show dialog login
-                Toast.makeText(requireContext(), "Null User", Toast.LENGTH_SHORT).show()
+                showDialogLogin()
+//                Toast.makeText(requireContext(), "Null User", Toast.LENGTH_SHORT).show()
             }else {
                 Glide.with(requireContext()).asGif().load(R.raw.icon_sync).into(binding.syncBtn)
             }
@@ -163,9 +160,29 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         }
 
         binding.logoutImg.setOnClickListener {
-            auth.signOut()
+            Firebase.auth.signOut()
+            binding.apply {
+                btnGoogle.visibility = View.VISIBLE
+                logoutParent.visibility = View.GONE
+                syncBtn.loadImage(R.drawable.icon_sync)
+            }
         }
     }
 
+    private fun showDialogLogin(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+        builder.setCancelable(true)
+        val inflater = LayoutInflater.from(context)
+        val viewDialogBinding = AlertDialogLoginBinding.inflate(inflater)
+
+        builder.setView(viewDialogBinding.root)
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
+        alertDialog.window?.setBackgroundDrawableResource(R.drawable.bg_alert_dialog)
+
+        viewDialogBinding.alertDialogOK.setOnClickListener {
+            alertDialog.cancel()
+        }
+    }
 
 }
