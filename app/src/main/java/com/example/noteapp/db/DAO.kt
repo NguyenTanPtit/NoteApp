@@ -21,7 +21,8 @@ interface DAO {
 
     @Query("select * from Note order by id desc")
     fun getAllNote():LiveData<List<Note>>
-
+    @Query("select * from Note order by id desc")
+    fun getAllNoteSync():List<Note>
 
     @Query("select * from Note where title like :query or content like :query or date like :query order by id desc ")
     fun searchNote(query:String ):LiveData<List<Note>>

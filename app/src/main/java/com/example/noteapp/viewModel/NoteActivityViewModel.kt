@@ -45,7 +45,11 @@ class NoteActivityViewModel(private val repo: NoteRepository) : ViewModel() {
 
     fun getAllNote(): LiveData<List<Note>> = repo.getNote()
 
+    fun getAllNoteSync(): List<Note> = repo.getNoteSync()
+
     fun getAllRemind() : LiveData<List<Reminder>> = repo.getReminder()
+
+    fun getAllRemindSync() : List<Reminder> = repo.getReminderSync()
 
     fun saveReminder(reminder: Reminder, context: Context, calendar: Calendar) =
         viewModelScope.launch {

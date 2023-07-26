@@ -10,6 +10,8 @@ class NoteRepository(private val db:NoteDB) {
     //CRUD Note
     fun getNote() = db.getNoteDao().getAllNote()
 
+    fun getNoteSync() = db.getNoteDao().getAllNoteSync()
+
     fun searchNote(query: String):LiveData<List<Note>> = db.getNoteDao().searchNote(query)
 
     suspend fun  addNote(note:Note) = db.getNoteDao().addNote(note)
@@ -21,6 +23,8 @@ class NoteRepository(private val db:NoteDB) {
 
     //CRUD Reminder
     fun getReminder() = db.getReminderDao().getAllReminder()
+
+    fun getReminderSync()= db.getReminderDao().getAllReminderSync()
 
     fun searchReminder(query: String): LiveData<List<Reminder>>
             = db.getReminderDao().searchReminder(query)

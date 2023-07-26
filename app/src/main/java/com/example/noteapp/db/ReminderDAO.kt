@@ -21,6 +21,8 @@ interface ReminderDAO {
     @Query("select * from Reminder order by id desc")
     fun getAllReminder(): LiveData<List<Reminder>>
 
+    @Query("select * from Reminder order by id desc")
+    fun getAllReminderSync(): List<Reminder>
 
     @Query("select * from Reminder where title like :query or content like :query " +
             "or date like :query or time like :query order by id desc ")

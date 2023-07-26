@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -19,8 +20,9 @@ import com.example.noteapp.databinding.FragmentSettingBinding
 import com.example.noteapp.repository.FirebaseRepository
 import com.example.noteapp.repository.ResponseState
 import com.example.noteapp.utils.loadImage
-import com.example.noteapp.viewModel.LoginWithGGViewModel
-import com.example.noteapp.viewModel.LoginWithGGViewModelFactory
+import com.example.noteapp.viewModel.FirebaseViewModel
+import com.example.noteapp.viewModel.FirebaseViewModelFactory
+import com.example.noteapp.viewModel.NoteActivityViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -31,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.runBlocking
 
 
 class SettingFragment : Fragment(R.layout.fragment_setting) {
@@ -42,7 +45,8 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     private var user: FirebaseUser? = null
     private lateinit var googleSignInClient: GoogleSignInClient
     val RC_SIGN_IN = 0
-    private val loginViewModel: LoginWithGGViewModel by viewModels{LoginWithGGViewModelFactory(repo = FirebaseRepository())}
+    private val firebaseViewModel: FirebaseViewModel by viewModels{FirebaseViewModelFactory(repo = FirebaseRepository())}
+    private val noteActivityViewModel:NoteActivityViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -111,8 +115,8 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     }
     private fun signInWithGoogleAuthCredential(googleAuthCredential: AuthCredential) {
 
-        loginViewModel.signInWithGoogle(googleAuthCredential)
-        loginViewModel.authenticateUserLiveData.observe(viewLifecycleOwner) { authenticatedUser ->
+        firebaseViewModel.signInWithGoogle(googleAuthCredential)
+        firebaseViewModel.authenticateUserLiveData.observe(viewLifecycleOwner) { authenticatedUser ->
             when (authenticatedUser) {
                 is ResponseState.Error -> {
                     binding.progress.visibility= View.GONE
@@ -152,6 +156,10 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
 //                Toast.makeText(requireContext(), "Null User", Toast.LENGTH_SHORT).show()
             }else {
                 Glide.with(requireContext()).asGif().load(R.raw.icon_sync).into(binding.syncBtn)
+
+                firebaseViewModel.syncNoteAndRemind(user!!.uid,requireContext(),noteActivityViewModel)
+
+                binding.syncBtn.loadImage(R.drawable.icon_sync)
             }
         }
 
