@@ -18,8 +18,15 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import kotlin.coroutines.resumeWithException
 
 
 class FirebaseRepository {
@@ -56,78 +63,80 @@ class FirebaseRepository {
         return authenticatedUserMutableLiveData
     }
 
-    private fun getAllNoteFirebase(uid: String, listener: OnGetNoteData) {
-        val res: MutableMap<Int, Note> = mutableMapOf()
-        database = Firebase.database.reference
-        database.child("UserData").child(uid).child("Notes")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (item in snapshot.children) {
-                        val note = item.getValue(Note::class.java)
-                        note?.let {
-                            res[it.Id] = it
+    private suspend fun getAllNoteFirebase(uid: String):MutableMap<Int,Note> {
+        return withContext(Dispatchers.IO){
+            suspendCancellableCoroutine {continuation ->
+                database = Firebase.database.reference
+                database. child("UserData").child(uid).child("Notes")
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val res: MutableMap<Int, Note> = mutableMapOf()
+                            for (item in snapshot.children) {
+                                val note = item.getValue(Note::class.java)
+                                note?.let {
+                                    res[it.Id] = it
+                                }
+                            }
+                            continuation.resume(res,null)
                         }
-                    }
-                    listener.onSuccessGetNote(res)
-                }
+                        override fun onCancelled(error: DatabaseError) {
+                            //TODO("Not yet implemented")
+                            continuation.resumeWithException(error.toException())
+                        }
+                    })
+            }
 
-                override fun onCancelled(error: DatabaseError) {
-                    //TODO("Not yet implemented")
-                }
-            })
+        }
+
     }
 
-    private fun getAllReminderFirebase(uid: String, listener: OnGetDataReminder) {
-        val res: MutableMap<Int, Reminder> = mutableMapOf()
-        database = Firebase.database.reference
-
-        database.child("UserData").child(uid).child("Reminders")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (item in snapshot.children) {
-                        val reminder = item.getValue(Reminder::class.java)
-                        reminder?.let {
-                            res[it.Id] = it
+    private suspend fun getAllReminderFirebase(uid: String): MutableMap<Int,Reminder>{
+        return withContext(Dispatchers.IO){
+            suspendCancellableCoroutine { continuation ->
+                val res: MutableMap<Int, Reminder> = mutableMapOf()
+                database = Firebase.database.reference
+                database.child("UserData").child(uid).child("Reminders")
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            for (item in snapshot.children) {
+                                val reminder = item.getValue(Reminder::class.java)
+                                reminder?.let {
+                                    res[it.Id] = it
+                                }
+                            }
+                            continuation.resume(res,null)
                         }
-                    }
-                    listener.onSuccessGetReminder(res)
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    //TODO("Not yet implemented")
-                }
-
-            })
+                        override fun onCancelled(error: DatabaseError) {
+                            //TODO("Not yet implemented")
+                            continuation.resumeWithException(error.toException())
+                        }
+                    })
+            }
+        }
     }
 
     fun syncNoteAndRemind(uid: String, context: Context, viewModel: NoteActivityViewModel) {
-        var listNoteFirebase: MutableMap<Int, Note>
-        var listReminderFirebase: MutableMap<Int, Reminder>
+        GlobalScope.launch (Dispatchers.IO){
 
-        var listNoteLocal: List<Note> = viewModel.getAllNoteSync()
-        Log.d("listNoteLocal", listNoteLocal.size.toString())
-        var listReminderLocal: List<Reminder> = viewModel.getAllRemindSync()
-        Log.d("listReminderLocal", listReminderLocal.size.toString())
-        getAllNoteFirebase(uid, object : OnGetNoteData {
-            override fun onSuccessGetNote(res: MutableMap<Int, Note>) {
-                listNoteFirebase = res
-                Log.d("sizeFirebase", listNoteFirebase.size.toString())
-                noteDataSynchronization(listNoteLocal, listNoteFirebase, uid, context, viewModel)
+            val listNoteLocal: List<Note> = viewModel.getAllNoteSync()
+            Log.d("listNoteLocal", listNoteLocal.size.toString())
+            val listReminderLocal: List<Reminder> = viewModel.getAllRemindSync()
+            Log.d("listReminderLocal", listReminderLocal.size.toString())
+            val deferredListNoteFirebase =async {
+                getAllNoteFirebase(uid)
             }
-        })
+            val listNoteFirebase = deferredListNoteFirebase.await()
+            Log.d("Firebase size", listNoteFirebase.size.toString())
+            noteDataSynchronization(listNoteLocal,listNoteFirebase,uid,context, viewModel)
 
-        getAllReminderFirebase(uid, object : OnGetDataReminder {
-            override fun onSuccessGetReminder(res: MutableMap<Int, Reminder>) {
-                listReminderFirebase = res
-                reminderDataSynchronization(
-                    listReminderLocal,
-                    listReminderFirebase,
-                    uid,
-                    context,
-                    viewModel
-                )
+            val deferredListReminderFirebase=async {
+                getAllReminderFirebase(uid)
             }
-        })
+            val listReminderFirebase = deferredListReminderFirebase.await()
+            reminderDataSynchronization(listReminderLocal,listReminderFirebase,uid,context, viewModel)
+        }
+
 
     }
 

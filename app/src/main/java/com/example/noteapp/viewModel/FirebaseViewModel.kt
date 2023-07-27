@@ -9,9 +9,11 @@ import com.example.noteapp.model.User
 import com.example.noteapp.repository.FirebaseRepository
 import com.example.noteapp.repository.ResponseState
 import com.google.firebase.auth.AuthCredential
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class FirebaseViewModel(private val repo: FirebaseRepository) :ViewModel(){
+class FirebaseViewModel(private val repo: FirebaseRepository) : ViewModel() {
     private var _authenticateUserLiveData: MutableLiveData<ResponseState<User>> = MutableLiveData()
     val authenticateUserLiveData: LiveData<ResponseState<User>> get() = _authenticateUserLiveData
 
@@ -19,11 +21,11 @@ class FirebaseViewModel(private val repo: FirebaseRepository) :ViewModel(){
         _authenticateUserLiveData = repo.firebaseSignInWithGoogle(googleAuthCredential)
     }
 
-    fun syncNoteAndRemind(uid: String, context: Context, viewModel: NoteActivityViewModel)
-        {
-            runBlocking { repo.syncNoteAndRemind(uid, context, viewModel) }
-
+    fun syncNoteAndRemind(uid: String, context: Context, viewModel: NoteActivityViewModel) {
+        GlobalScope.launch(Dispatchers.Main) {
+            repo.syncNoteAndRemind(uid, context, viewModel)
             Toast.makeText(context, "Sync Done", Toast.LENGTH_SHORT).show()
         }
+    }
 
 }
