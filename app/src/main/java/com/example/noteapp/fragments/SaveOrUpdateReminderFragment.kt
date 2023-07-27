@@ -25,6 +25,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.noteapp.R
 import com.example.noteapp.databinding.BottomSheetLayoutBinding
 import com.example.noteapp.databinding.DialogPickTimeBinding
+import com.example.noteapp.databinding.DialogWarningBinding
 import com.example.noteapp.databinding.FragmentSaveOrUpdateReminderBinding
 import com.example.noteapp.model.Reminder
 import com.example.noteapp.utils.hideKeyboard
@@ -241,7 +242,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         val title = binding.edtTitle.text.toString()
         val content = binding.edtContent.getMD()
         if (title.isEmpty() || content.isEmpty()) {
-            //TODO: show dialog warning
+            showDialogWarning()
         } else {
             reminder = arg.reminder
             when (reminder) {
@@ -425,6 +426,21 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
             }
         }
         return "Else"
+    }
+    private fun showDialogWarning(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+        builder.setCancelable(true)
+        val inflater = LayoutInflater.from(context)
+        val viewDialogBinding = DialogWarningBinding.inflate(inflater)
+
+        builder.setView(viewDialogBinding.root)
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
+        alertDialog.window?.setBackgroundDrawableResource(R.drawable.bg_alert_dialog)
+
+        viewDialogBinding.alertDialogOK.setOnClickListener {
+            alertDialog.cancel()
+        }
     }
 
 }

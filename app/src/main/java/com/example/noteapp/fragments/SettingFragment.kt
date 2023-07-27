@@ -1,5 +1,6 @@
 package com.example.noteapp.fragments
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -28,12 +29,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.transition.MaterialElevationScale
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class SettingFragment : Fragment(R.layout.fragment_setting) {
@@ -48,6 +53,15 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     private val firebaseViewModel: FirebaseViewModel by viewModels{FirebaseViewModelFactory(repo = FirebaseRepository())}
     private val noteActivityViewModel:NoteActivityViewModel by activityViewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        exitTransition = MaterialElevationScale(false).apply {
+            duration = 350
+        }
+        enterTransition = MaterialElevationScale(true).apply {
+            duration = 350
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,6 +77,7 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         setOnClick()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initView(){
         user = Firebase.auth.currentUser
         initGoogleSignInClient()
@@ -71,9 +86,13 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
             binding.apply {
                 btnGoogle.visibility = View.GONE
                 logoutParent.visibility = View.VISIBLE
+                avatarParent.visibility = View.VISIBLE
+                Glide.with(requireContext()).load(user!!.photoUrl).into(avatarImg)
+                textViewAvatar.text = "Hello, ${user!!.displayName}"
             }
         }else{
             binding.apply {
+                avatarParent.visibility = View.GONE
                 btnGoogle.visibility = View.VISIBLE
                 logoutParent.visibility = View.GONE
             }
@@ -129,9 +148,13 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
                 is ResponseState.Success -> {
                     binding.progress.visibility= View.GONE
                     if (authenticatedUser.data != null) {
+                        user = Firebase.auth.currentUser
                         binding.apply {
                             btnGoogle.visibility = View.GONE
                             logoutParent.visibility = View.VISIBLE
+                            avatarParent.visibility = View.VISIBLE
+                            Glide.with(requireContext()).load(user!!.photoUrl).into(avatarImg)
+                            textViewAvatar.text = "Hello, ${user!!.displayName}"
                         }
                     }
                 }
@@ -151,16 +174,18 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
         }
 
         binding.syncBtn.setOnClickListener {
-            if (user == null){
-                showDialogLogin()
-//                Toast.makeText(requireContext(), "Null User", Toast.LENGTH_SHORT).show()
-            }else {
-                Glide.with(requireContext()).asGif().load(R.raw.icon_sync).into(binding.syncBtn)
+            GlobalScope.launch(Dispatchers.Main) {
+                if (user == null){
+                    showDialogLogin()
+                }else {
+                    Glide.with(requireContext()).asGif().load(R.raw.icon_sync).into(binding.syncBtn)
 
-                firebaseViewModel.syncNoteAndRemind(user!!.uid,requireContext(),noteActivityViewModel)
-
-                binding.syncBtn.loadImage(R.drawable.icon_sync)
+                    firebaseViewModel.syncNoteAndRemind(user!!.uid,requireContext(),noteActivityViewModel)
+                    delay(2000)
+                    binding.syncBtn.loadImage(R.drawable.icon_sync)
+                }
             }
+
         }
 
         binding.btnGoogle.setOnClickListener {
@@ -169,10 +194,13 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
 
         binding.logoutImg.setOnClickListener {
             Firebase.auth.signOut()
+            googleSignInClient.signOut()
+            user = Firebase.auth.currentUser
             binding.apply {
                 btnGoogle.visibility = View.VISIBLE
                 logoutParent.visibility = View.GONE
                 syncBtn.loadImage(R.drawable.icon_sync)
+                avatarParent.visibility = View.GONE
             }
         }
     }

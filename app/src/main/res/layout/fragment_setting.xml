@@ -35,19 +35,47 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
+            <LinearLayout
+                android:id="@+id/avatarParent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="90dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/avatarImg"
+                    android:layout_gravity="center"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"/>
+                <TextView
+                    android:id="@+id/textViewAvatar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hello "
+                    android:layout_marginTop="15dp"
+                    android:gravity="center"
+                    android:layout_gravity="center"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/google_sans_medium"
+                    />
+            </LinearLayout>
+
 
             <LinearLayout
                 android:id="@+id/syncParent"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="20dp"
                 android:layout_marginStart="30dp"
+                android:layout_marginTop="50dp"
                 android:layout_marginEnd="30dp"
                 android:orientation="horizontal"
                 android:weightSum="8"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/backBtn">
+                app:layout_constraintTop_toBottomOf="@+id/avatarParent">
 
                 <TextView
                     android:layout_width="0dp"
@@ -63,12 +91,12 @@
                     android:id="@+id/syncBtn"
                     android:layout_width="0dp"
                     android:layout_height="30dp"
-                    android:layout_weight="1"
                     android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:layout_weight="1"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@drawable/icon_sync"
-                    android:layout_marginStart="20dp" />
+                    android:src="@drawable/icon_sync" />
             </LinearLayout>
 
             <LinearLayout
@@ -76,7 +104,7 @@
                 android:layout_width="280dp"
                 android:layout_height="54dp"
                 android:background="@drawable/bg_button"
-                android:backgroundTint="#CFEDEF"
+                android:backgroundTint="#A7DEF6"
                 android:elevation="5dp"
                 android:gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"

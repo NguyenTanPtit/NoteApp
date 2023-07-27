@@ -16,10 +16,8 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.example.noteapp.adapter.NoteRecAdapter
 import com.example.noteapp.adapter.SearchRecAdapter
 import com.example.noteapp.databinding.FragmentSearchBinding
-import com.example.noteapp.model.Note
 import com.example.noteapp.utils.hideKeyboard
 import com.example.noteapp.viewModel.NoteActivityViewModel
 import java.util.concurrent.TimeUnit

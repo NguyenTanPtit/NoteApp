@@ -7,11 +7,9 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:background="#B5E2F6"
-        android:padding="20dp">
+        android:background="#B5E2F6">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -27,8 +25,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="10dp"
-                android:text="Login required"
+                android:text="All Field Required"
                 android:textColor="@color/black"
+                android:fontFamily="@font/google_sans_bold"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -39,8 +38,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="20dp"
-                android:text="You need to login to use this feature!!"
+                android:text="Your title or content is empty. Please leave something!"
                 android:textColor="@color/black"
+                android:fontFamily="@font/google_sans_regular"
                 android:textSize="15sp"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -59,7 +59,6 @@
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

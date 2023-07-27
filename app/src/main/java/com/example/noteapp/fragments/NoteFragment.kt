@@ -30,6 +30,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -45,7 +48,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
     private val noteActivityViewModel: NoteActivityViewModel by activityViewModels()
     private lateinit var navController : NavController
     private lateinit var noteAdapter: NoteRecAdapter
-    private lateinit var acc : GoogleSignInAccount
+    private var user : FirebaseUser? = null
 
     private enum class NavState{
         Opened, Closed
@@ -73,13 +76,14 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             activity.window.clearFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             activity.window.statusBarColor = Color.parseColor("#9E9D9D")
         }
+        user = Firebase.auth.currentUser
+        if(user!=null){
+            Glide.with(requireContext()).load(user!!.photoUrl).into(noteBinding.profileImg)
+        }
         initRec()
         setOnClick()
         swipeToDelete(noteBinding.recNote)
-        if(GoogleSignIn.getLastSignedInAccount(requireContext()) != null){
-            acc = GoogleSignIn.getLastSignedInAccount(requireContext())!!
-            Glide.with(requireContext()).load(acc.photoUrl).into(noteBinding.profileImg)
-        }
+
     }
 
     private fun swipeToDelete(recyclerView: RecyclerView) {

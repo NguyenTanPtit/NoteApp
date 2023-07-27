@@ -9,6 +9,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
+        android:background="@android:color/transparent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp">
 
@@ -17,12 +18,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:background="?attr/selectableItemBackground"
+            android:background="@android:color/transparent"
             android:clickable="true"
             android:focusable="true"
             android:padding="5dp"
             app:cardCornerRadius="13dp"
-            app:cardElevation="5dp">
+            >
 
             <RelativeLayout
                 android:layout_width="match_parent"

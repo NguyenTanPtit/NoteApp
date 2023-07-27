@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
@@ -24,11 +23,12 @@ import com.example.noteapp.adapter.ReminderAdapter
 import com.example.noteapp.databinding.FragmentRemindersBinding
 import com.example.noteapp.utils.SwipeToDelete
 import com.example.noteapp.viewModel.NoteActivityViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialElevationScale
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -51,8 +51,7 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
         Opened, Closed
     }
     private var navState = NavState.Closed
-
-    private lateinit var acc : GoogleSignInAccount
+    private var user : FirebaseUser? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,10 +63,9 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-
-        if(GoogleSignIn.getLastSignedInAccount(requireContext()) != null){
-            acc = GoogleSignIn.getLastSignedInAccount(requireContext())!!
-            Glide.with(requireContext()).load(acc.photoUrl).into(binding.profileImg)
+        user = Firebase.auth.currentUser
+        if(user!=null){
+            Glide.with(requireContext()).load(user!!.photoUrl).into(binding.profileImg)
         }
         initRec()
         setOnClick()
@@ -117,10 +115,21 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
             true
         }
 
-        binding.innerFab.setOnClickListener {
-            navController.navigate(RemindersFragmentDirections
-                .actionRemindersFragmentToSaveOrUpdateReminderFragment())
+        binding.apply {
+            addReminderFab.setOnClickListener {
+                navController.navigate(RemindersFragmentDirections
+                    .actionRemindersFragmentToSaveOrUpdateReminderFragment())
+            }
+            innerFab.setOnClickListener{
+                navController.navigate(RemindersFragmentDirections
+                    .actionRemindersFragmentToSaveOrUpdateReminderFragment())
+            }
+            fabText.setOnClickListener{
+                navController.navigate(RemindersFragmentDirections
+                    .actionRemindersFragmentToSaveOrUpdateReminderFragment())
+            }
         }
+
 
         binding.tvSearch.setOnClickListener {
             navController.navigate(RemindersFragmentDirections.actionRemindersFragmentToSearchFragment())

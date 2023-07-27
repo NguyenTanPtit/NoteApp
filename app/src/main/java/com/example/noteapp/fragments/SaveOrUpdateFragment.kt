@@ -1,14 +1,13 @@
 package com.example.noteapp.fragments
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.fragment.app.FragmentManager
 import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
@@ -19,6 +18,7 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import com.example.noteapp.R
 import com.example.noteapp.databinding.BottomSheetLayoutBinding
+import com.example.noteapp.databinding.DialogWarningBinding
 import com.example.noteapp.databinding.FragmentSaveOrUpdateBinding
 import com.example.noteapp.model.Note
 import com.example.noteapp.utils.hideKeyboard
@@ -163,7 +163,7 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
         val content = binding.edtNoteContent.text.toString()
         val title = binding.edtTile.text.toString()
         if(content.isEmpty()||title.isEmpty()){
-            //TODO: show dialog warning
+            showDialogWarning()
         }else{
             note = args.note
             when(note){
@@ -199,6 +199,22 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
                     currentDate, color
                 )
             )
+        }
+    }
+
+    private fun showDialogWarning(){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(context)
+        builder.setCancelable(true)
+        val inflater = LayoutInflater.from(context)
+        val viewDialogBinding = DialogWarningBinding.inflate(inflater)
+
+        builder.setView(viewDialogBinding.root)
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
+        alertDialog.window?.setBackgroundDrawableResource(R.drawable.bg_alert_dialog)
+
+        viewDialogBinding.alertDialogOK.setOnClickListener {
+            alertDialog.cancel()
         }
     }
 
