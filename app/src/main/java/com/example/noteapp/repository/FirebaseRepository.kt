@@ -190,7 +190,7 @@ class FirebaseRepository {
         for (reminder in firebaseReminder.values) {
             if (reminder.Id !in localList.map { it.Id }) {
                 val cal = Calendar.getInstance()
-                cal.time = simpleDateTimeFormat.parse(reminder.time)!!
+                cal.timeInMillis = reminder.time
                 viewModel.saveReminder(reminder, context, cal)
             }
         }

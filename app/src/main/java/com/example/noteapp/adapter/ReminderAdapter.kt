@@ -22,16 +22,20 @@ import org.commonmark.node.SoftLineBreak
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
-class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>(DiffUtilCallBackReminder()) {
-    private val simpleDateTimeFormat = SimpleDateFormat("dd/MM/yyyy, HH:mm")
+class ReminderAdapter :
+    ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>(DiffUtilCallBackReminder()) {
+    @SuppressLint("SimpleDateFormat")
+    private val simpleTimeFormat = SimpleDateFormat("HH:mm")
+    @SuppressLint("SimpleDateFormat")
+    private val simpleDateTimeFormat = SimpleDateFormat("MMMM dd, HH:mm")
+
     inner class ReminderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = ReminderItemLayoutBinding.bind(itemView)
         val title = binding.remindItemTitle
-        val content:TextView = binding.remindContent
+        val content: TextView = binding.remindContent
         val time = binding.remindTime
         val parent = binding.remindItemParent
-        val markwon = Markwon.builder(itemView.context)
-            .usePlugin(StrikethroughPlugin.create())
+        val markwon = Markwon.builder(itemView.context).usePlugin(StrikethroughPlugin.create())
             .usePlugin(TaskListPlugin.create(itemView.context))
             .usePlugin(object : AbstractMarkwonPlugin() {
                 override fun configureVisitor(builder: MarkwonVisitor.Builder) {
@@ -45,8 +49,10 @@ class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReminderViewHolder {
-        return ReminderViewHolder(LayoutInflater.from(parent.context)
-            .inflate(R.layout.reminder_item_layout,parent,false))
+        return ReminderViewHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.reminder_item_layout, parent, false)
+        )
     }
 
     @SuppressLint("SetTextI18n")
@@ -55,45 +61,39 @@ class ReminderAdapter: ListAdapter<Reminder, ReminderAdapter.ReminderViewHolder>
             holder.apply {
                 parent.transitionName = "reminder_${reminder.Id}"
                 title.text = reminder.title
-                markwon.setMarkdown(content,reminder.content)
+                markwon.setMarkdown(content, reminder.content)
                 parent.setCardBackgroundColor(reminder.color)
-                val dateRemind = simpleDateTimeFormat.parse(reminder.time)
-                val timeRemind = reminder.time.substringAfterLast(' ')
-                if(dateRemind!=null) {
-                    val calendarRemind = Calendar.getInstance()
-                    calendarRemind.time = dateRemind
-                    val calendarToday = Calendar.getInstance()
-                    if(checkDate(calendarRemind,calendarToday)=="Today"){
-                        time.text = "Today, $timeRemind"
-                    }else if(checkDate(calendarRemind,calendarToday)=="Tomorrow"){
-                        time.text = "Tomorrow, $timeRemind"
-                    }else
-                        time.text = reminder.time
-                }else{
-                    time.text = reminder.time
-                }
+
+                val calendarRemind = Calendar.getInstance()
+                calendarRemind.timeInMillis = reminder.time
+                val calendarToday = Calendar.getInstance()
+                if (checkDate(calendarRemind, calendarToday) == "Today") {
+                    time.text = "Today, ${simpleTimeFormat.format(calendarRemind.time)}"
+                } else if (checkDate(calendarRemind, calendarToday) == "Tomorrow") {
+                    time.text = "Tomorrow, ${simpleTimeFormat.format(calendarRemind.time)}"
+                } else time.text = simpleDateTimeFormat.format(calendarRemind)
 
 
-                parent.setOnClickListener{
-                    val action = RemindersFragmentDirections.
-                    actionRemindersFragmentToSaveOrUpdateReminderFragment().setReminder(reminder)
+
+                parent.setOnClickListener {
+                    val action =
+                        RemindersFragmentDirections.actionRemindersFragmentToSaveOrUpdateReminderFragment()
+                            .setReminder(reminder)
 
                     val extras = FragmentNavigatorExtras(parent to "reminder_${reminder.Id}")
 
-                    Navigation.findNavController(it).navigate(action,extras)
+                    Navigation.findNavController(it).navigate(action, extras)
                 }
-
-
             }
         }
     }
 
-    private fun checkDate(calendarRemind: Calendar, calendarToday:Calendar):String{
-        if (calendarRemind.get(Calendar.YEAR)==calendarToday.get(Calendar.YEAR)){
-            if(calendarRemind.get(Calendar.MONTH)==calendarToday.get(Calendar.MONTH)){
-                if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH))
+    private fun checkDate(calendarRemind: Calendar, calendarToday: Calendar): String {
+        if (calendarRemind.get(Calendar.YEAR) == calendarToday.get(Calendar.YEAR)) {
+            if (calendarRemind.get(Calendar.MONTH) == calendarToday.get(Calendar.MONTH)) {
+                if (calendarRemind.get(Calendar.DAY_OF_MONTH) == calendarToday.get(Calendar.DAY_OF_MONTH))
                     return "Today"
-                else if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH)+1)
+                else if (calendarRemind.get(Calendar.DAY_OF_MONTH) == calendarToday.get(Calendar.DAY_OF_MONTH) + 1)
                     return "Tomorrow"
             }
         }

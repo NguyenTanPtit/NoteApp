@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 
 
@@ -45,9 +46,10 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
     private var color = -1
     private lateinit var result : String
     private val noteViewModel: NoteActivityViewModel by activityViewModels()
-    private val currentDate = SimpleDateFormat.getInstance().format(Date())
+    private val currentCalendar = Calendar.getInstance()
     private val job = CoroutineScope(Dispatchers.Main)
     private val args: SaveOrUpdateFragmentArgs by navArgs()
+    private val simpleDateFormat = SimpleDateFormat("MMMM dd, HH:mm")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,14 +74,16 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
         val note = args.note
         val title = binding.edtTile
         val content =  binding.edtNoteContent
+        val calendar = Calendar.getInstance()
         val lastEdit = binding.lastEdited
         if(note==null){
-            binding.lastEdited.text = "Edited on: ${SimpleDateFormat.getDateInstance().format(Date())}"
+            binding.lastEdited.text = "Edited on: ${simpleDateFormat.format(calendar.time)}"
         }else{
             color = note.color
             title.setText(note.title)
             content.renderMD(note.content)
-            lastEdit.text = "Edited on ${note.date}"
+            calendar.timeInMillis = note.date
+            lastEdit.text = "Edited on ${simpleDateFormat.format(calendar.time)}"
 
             binding.apply {
                 job.launch {
@@ -170,7 +174,7 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
                 null -> {
                     noteViewModel.saveNote(
                         Note(
-                            0, title, binding.edtNoteContent.getMD(), currentDate, color
+                            0, title, binding.edtNoteContent.getMD(), currentCalendar.timeInMillis, color
                         )
                     )
                     result = "Note Saved"
@@ -196,7 +200,7 @@ class SaveOrUpdateFragment : Fragment(R.layout.fragment_save_or_update) {
                 Note(
                     note!!.Id,
                     binding.edtTile.text.toString(), binding.edtNoteContent.getMD(),
-                    currentDate, color
+                    currentCalendar.timeInMillis, color
                 )
             )
         }

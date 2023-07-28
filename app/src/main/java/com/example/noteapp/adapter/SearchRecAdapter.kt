@@ -1,5 +1,6 @@
 package com.example.noteapp.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +30,10 @@ import java.util.Calendar
 class SearchRecAdapter(private var list: MutableList<Any>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val simpleDateTimeFormat = SimpleDateFormat("dd/MM/yyyy, HH:mm")
+    @SuppressLint("SimpleDateFormat")
+    private val simpleTimeFormat = SimpleDateFormat("HH:mm")
+    @SuppressLint("SimpleDateFormat")
+    private val simpleDateTimeFormat = SimpleDateFormat("MMMM dd, HH:mm")
     override fun getItemViewType(position: Int): Int {
         val item = list[position]
         return if (item is Reminder) 1 else 0
@@ -87,6 +91,7 @@ class SearchRecAdapter(private var list: MutableList<Any>) :
         return list.size
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = list[position]
         if(item is Note && holder is NoteViewHolder) {
@@ -126,23 +131,17 @@ class SearchRecAdapter(private var list: MutableList<Any>) :
             holder.apply {
                 parent.transitionName = "reminder_${item.Id}"
                 title.text = item.title
-                markwon.setMarkdown(content,item.content)
+                markwon.setMarkdown(content, item.content)
                 parent.setCardBackgroundColor(item.color)
-                val dateRemind = simpleDateTimeFormat.parse(item.time)
-                val timeRemind = item.time.substringAfterLast(' ')
-                if(dateRemind!=null) {
-                    val calendarRemind = Calendar.getInstance()
-                    calendarRemind.time = dateRemind
-                    val calendarToday = Calendar.getInstance()
-                    if(checkDate(calendarRemind,calendarToday)=="Today"){
-                        time.text = "Today, $timeRemind"
-                    }else if(checkDate(calendarRemind,calendarToday)=="Tomorrow"){
-                        time.text = "Tomorrow, $timeRemind"
-                    }else
-                        time.text = item.time
-                }else{
-                    time.text = item.time
-                }
+
+                val calendarRemind = Calendar.getInstance()
+                calendarRemind.timeInMillis = item.time
+                val calendarToday = Calendar.getInstance()
+                if (checkDate(calendarRemind, calendarToday) == "Today") {
+                    time.text = "Today, ${simpleTimeFormat.format(calendarRemind.time)}"
+                } else if (checkDate(calendarRemind, calendarToday) == "Tomorrow") {
+                    time.text = "Tomorrow, ${simpleTimeFormat.format(calendarRemind.time)}"
+                } else time.text = simpleDateTimeFormat.format(calendarRemind)
 
                 parent.setOnClickListener{
                     val action = RemindersFragmentDirections.

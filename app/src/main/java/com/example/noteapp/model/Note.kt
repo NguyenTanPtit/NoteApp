@@ -10,7 +10,7 @@ data class Note(
     var Id:Int = 0,
     val title:String = "",
     val content :String="",
-    val date: String = "",
+    val date: Long = 0,
     val color: Int = -1,
 ):Serializable
 

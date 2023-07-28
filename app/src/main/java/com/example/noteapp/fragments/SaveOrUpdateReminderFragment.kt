@@ -63,7 +63,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
     private val simpleTimeFormat = SimpleDateFormat("HH:mm")
 
     @SuppressLint("SimpleDateFormat")
-    private val simpleDateTimeFormat = SimpleDateFormat("dd/MM/yyyy, HH:mm")
+    private val simpleDateTimeFormat = SimpleDateFormat("MMM dd, HH:mm")
 
     private val itemSpinnerDate = arrayOf("Today", "Tomorrow", "Pick a date...")
     private val itemSpinnerTime = arrayOf("18:00", "20:00", "Pick a time...")
@@ -99,27 +99,24 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         val lastEdit = binding.lastEdited
         val time = binding.remindTime
         if (reminder != null) {
-            lastEdit.text = "Edited on: ${reminder.date}"
+            val calendarInit = Calendar.getInstance()
+            calendarInit.timeInMillis = reminder.time
+            lastEdit.text = "Edited on: ${simpleDateTimeFormat.format(calendarInit.time)}"
             title.setText(reminder.title)
             content.renderMD(reminder.content)
-            val calendarInit = Calendar.getInstance()
-            val dateTimeRemind = simpleDateTimeFormat.parse(reminder.time)
-            if (dateTimeRemind != null) {
-                val timeRemind = reminder.time.substringAfterLast(' ')
-                calendarInit.time = dateTimeRemind
-                calendar.time = dateTimeRemind
-                Log.d("dateRemind", dateTimeRemind.toString())
-                val calendarToday = Calendar.getInstance()
-                if(checkDate(calendarInit,calendarToday)=="Today"){
-                    time.text = "Today, $timeRemind"
-                }else if(checkDate(calendarInit,calendarToday)=="Tomorrow"){
-                    time.text = "Tomorrow, $timeRemind"
-                }else{
-                    time.text = reminder.time
-                }
-            }else{
-                time.text = reminder.time
+
+            calendar.timeInMillis = reminder.time
+//                Log.d("dateRemind", dateTimeRemind.toString())
+            val calendarToday = Calendar.getInstance()
+            if (checkDate(calendarInit, calendarToday) == "Today") {
+                time.text = "Today, ${simpleTimeFormat.format(calendar.time)}"
+            } else if (checkDate(calendarInit, calendarToday) == "Tomorrow") {
+                time.text = "Tomorrow, ${simpleTimeFormat.format(calendar.time)}"
+            } else {
+                time.text = simpleDateTimeFormat.format(calendar.time)
             }
+
+
             binding.apply {
                 job.launch {
                     delay(10)
@@ -250,8 +247,12 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
                     //save new reminder
                     saveReminder(
                         Reminder(
-                            0, title, content, simpleDateFormat.format(calendarEdit.time),
-                            color, simpleDateTimeFormat.format(calendar.time)
+                            0,
+                            title,
+                            content,
+                            calendarEdit.timeInMillis,
+                            color,
+                            calendar.timeInMillis
                         )
                     )
                     result = "Reminder Saved"
@@ -278,13 +279,17 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
     }
 
     private fun updateReminder() {
-        if(reminder!=null){
+        if (reminder != null) {
             noteActivityViewModel.updateReminder(
                 Reminder(
-                reminder!!.Id, binding.edtTitle.text.toString(),
-                binding.edtContent.getMD(), simpleDateFormat.format(calendarEdit.time),
-                    color, simpleDateTimeFormat.format(calendar.time)
-            ),requireContext(),calendar)
+                    reminder!!.Id,
+                    binding.edtTitle.text.toString(),
+                    binding.edtContent.getMD(),
+                    calendarEdit.timeInMillis,
+                    color,
+                    calendar.timeInMillis
+                ), requireContext(), calendar
+            )
         }
     }
 
@@ -298,6 +303,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
 
                     when (parent?.getItemAtPosition(position).toString()) {
                         "Today" -> {
+                            calendar.set(Calendar.DAY_OF_MONTH,Calendar.getInstance().get(Calendar.DAY_OF_MONTH))
                             dialogBinding.dateVal.text = "Today"
                         }
 
@@ -376,6 +382,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         val datePickerDialog = DatePickerDialog(
             requireContext(), { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
                 if (yearNow == year && monthNow == month && dateNow == dayOfMonth) {
+                    Log.d("date Time Pick", "$dateNow $dayOfMonth")
                     dialogBinding.dateVal.text = "Today"
                 } else if (yearNow == year && monthNow == month && dateNow == dayOfMonth - 1) {
                     calendar.add(Calendar.DATE, 1)
@@ -416,18 +423,17 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         }
     }
 
-    private fun checkDate(calendarRemind: Calendar, calendarToday:Calendar):String{
-        if (calendarRemind.get(Calendar.YEAR)==calendarToday.get(Calendar.YEAR)){
-            if(calendarRemind.get(Calendar.MONTH)==calendarToday.get(Calendar.MONTH)){
-                if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH))
-                    return "Today"
-                else if(calendarRemind.get(Calendar.DAY_OF_MONTH)==calendarToday.get(Calendar.DAY_OF_MONTH)+1)
-                    return "Tomorrow"
+    private fun checkDate(calendarRemind: Calendar, calendarToday: Calendar): String {
+        if (calendarRemind.get(Calendar.YEAR) == calendarToday.get(Calendar.YEAR)) {
+            if (calendarRemind.get(Calendar.MONTH) == calendarToday.get(Calendar.MONTH)) {
+                if (calendarRemind.get(Calendar.DAY_OF_MONTH) == calendarToday.get(Calendar.DAY_OF_MONTH)) return "Today"
+                else if (calendarRemind.get(Calendar.DAY_OF_MONTH) == calendarToday.get(Calendar.DAY_OF_MONTH) + 1) return "Tomorrow"
             }
         }
         return "Else"
     }
-    private fun showDialogWarning(){
+
+    private fun showDialogWarning() {
         val builder: AlertDialog.Builder = AlertDialog.Builder(context)
         builder.setCancelable(true)
         val inflater = LayoutInflater.from(context)

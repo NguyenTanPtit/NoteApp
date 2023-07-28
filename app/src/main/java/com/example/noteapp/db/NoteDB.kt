@@ -9,7 +9,7 @@ import com.example.noteapp.model.Reminder
 
 @Database(
     entities = [Note::class,Reminder::class],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 abstract class NoteDB : RoomDatabase() {

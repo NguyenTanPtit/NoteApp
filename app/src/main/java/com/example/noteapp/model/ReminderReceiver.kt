@@ -1,6 +1,7 @@
 package com.example.noteapp.model
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -16,12 +17,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.noteapp.R
 import com.example.noteapp.activities.MainActivity
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 class ReminderReceiver :BroadcastReceiver(){
+    @SuppressLint("SimpleDateFormat")
+    private val simpleDateTimeFormat = SimpleDateFormat("MMMM dd, HH:mm")
     override fun onReceive(context: Context, intent: Intent) {
         val title = intent.getStringExtra("title")
         val content = intent.getStringExtra("content")
-        val time = intent.getStringExtra("time")
+        val time = intent.getLongExtra("time",0)
         val notID = intent.getIntExtra("id",0)
         val activityIntent =Intent(context,MainActivity::class.java)
 
@@ -31,6 +36,8 @@ class ReminderReceiver :BroadcastReceiver(){
         val chanelID = "chanel_id"
         val name : CharSequence = "Notification Reminder"
         val des = "description"
+        val calendarTime = Calendar.getInstance()
+        calendarTime.timeInMillis = time
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             val channel = NotificationChannel(chanelID,name, NotificationManager.IMPORTANCE_HIGH)
@@ -45,7 +52,7 @@ class ReminderReceiver :BroadcastReceiver(){
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentTitle(title)
-            .setContentText("$content at $time")
+            .setContentText("$content at ${simpleDateTimeFormat.format(calendarTime.time)}")
             .setDeleteIntent(pendingIntent)
             .setGroup("Reminder").build()
 

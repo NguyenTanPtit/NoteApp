@@ -186,10 +186,7 @@ class RemindersFragment : Fragment(R.layout.fragment_reminders) {
                 val position = viewHolder.absoluteAdapterPosition
                 val reminder = remindAdapter.currentList[position]
                 val calendarRemind = Calendar.getInstance()
-                val dateTimeRemind = simpleDateTimeFormat.parse(reminder.time)
-                if(dateTimeRemind!=null) {
-                    calendarRemind.time = dateTimeRemind
-                }
+                calendarRemind.timeInMillis = reminder.time
                 noteViewModel.deleteReminder(reminder)
                 val snackbar = Snackbar.make(
                     requireView(),"Deleted", Snackbar.LENGTH_LONG
