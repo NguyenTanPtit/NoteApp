@@ -100,11 +100,11 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         val time = binding.remindTime
         if (reminder != null) {
             val calendarInit = Calendar.getInstance()
-            calendarInit.timeInMillis = reminder.time
+            calendarInit.timeInMillis = reminder.date
             lastEdit.text = "Edited on: ${simpleDateTimeFormat.format(calendarInit.time)}"
             title.setText(reminder.title)
             content.renderMD(reminder.content)
-
+            color = reminder.color
             calendar.timeInMillis = reminder.time
 //                Log.d("dateRemind", dateTimeRemind.toString())
             val calendarToday = Calendar.getInstance()
@@ -247,11 +247,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
                     //save new reminder
                     saveReminder(
                         Reminder(
-                            0,
-                            title,
-                            content,
-                            calendarEdit.timeInMillis,
-                            color,
+                            0, title, content, calendarEdit.timeInMillis, color,
                             calendar.timeInMillis
                         )
                     )
@@ -365,7 +361,7 @@ class SaveOrUpdateReminderFragment : Fragment(R.layout.fragment_save_or_update_r
         val timePickerDialog = TimePickerDialog(requireContext(), { _, hourOfDay, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
             calendar.set(Calendar.MINUTE, minute)
-            dialogBinding.timeVal.text = "$hourOfDay:$minute"
+            dialogBinding.timeVal.text = "${String.format("%02d",hourOfDay)}:${String.format("%02d",minute)}"
         }, hourNow, minNow, true)
         timePickerDialog.show()
     }

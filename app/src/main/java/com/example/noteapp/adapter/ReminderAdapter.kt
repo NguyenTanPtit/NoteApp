@@ -1,6 +1,8 @@
 package com.example.noteapp.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,11 +69,15 @@ class ReminderAdapter :
                 val calendarRemind = Calendar.getInstance()
                 calendarRemind.timeInMillis = reminder.time
                 val calendarToday = Calendar.getInstance()
+                if(reminder.time< calendarToday.timeInMillis){
+                    time.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+                    time.setTextColor( Color.parseColor("#5A595A"))
+                }
                 if (checkDate(calendarRemind, calendarToday) == "Today") {
                     time.text = "Today, ${simpleTimeFormat.format(calendarRemind.time)}"
                 } else if (checkDate(calendarRemind, calendarToday) == "Tomorrow") {
                     time.text = "Tomorrow, ${simpleTimeFormat.format(calendarRemind.time)}"
-                } else time.text = simpleDateTimeFormat.format(calendarRemind)
+                } else time.text = simpleDateTimeFormat.format(calendarRemind.time)
 
 
 
